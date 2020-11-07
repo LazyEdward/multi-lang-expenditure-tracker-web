@@ -154,11 +154,17 @@ const CalenAppBar = (props) => {
   }
 
   useEffect(() => {
-    setDay(new Date().getDate());
-    setMonth(new Date().getMonth() + 1);
-    setYear(new Date().getFullYear());
 
-    history.push('/day/' + day +'/'+ month +'/'+ year);
+    console.log(props.date)
+
+    if(props.date !== undefined){
+      setDay(props.date.day);
+      setMonth(props.date.month);
+      setYear(props.date.year);
+    }
+
+
+    // history.push('/day/' + day +'/'+ month +'/'+ year);
   }, [])
 
   var showDateBar;
