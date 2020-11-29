@@ -1,4 +1,6 @@
-import React, { useEffect }  from 'react';
+import React, { useEffect, useContext }  from 'react';
+import {AuthContext} from '../context/AuthContext'
+
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
@@ -15,6 +17,8 @@ const useStyles = makeStyles((theme) => ({
 const Year = (props) => {
   const classes = useStyles();
 
+  const {loggedin} = useContext(AuthContext);
+
   const history = useHistory();
   
   const toHome = () => {
@@ -23,9 +27,9 @@ const Year = (props) => {
 
   useEffect(() => {
 
-    console.log(props.loggedin);
+    console.log(loggedin);
 
-    if(!props.loggedin){
+    if(!loggedin){
       toHome();
     }
   }, [])

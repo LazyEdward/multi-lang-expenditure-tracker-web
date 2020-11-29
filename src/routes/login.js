@@ -1,4 +1,7 @@
-import React, { useEffect, useState }  from 'react';
+import React, { useEffect, useState, useContext }  from 'react';
+import {AuthContext} from '../context/AuthContext.js'
+import {DateContext} from '../context/DateContext.js'
+
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
@@ -6,12 +9,16 @@ import TextField from '@material-ui/core/TextField';
 import Grid from "@material-ui/core/Grid";
 import Card from '@material-ui/core/Card';
 import Button from "@material-ui/core/Button";
+import ButtonGroup from '@material-ui/core/ButtonGroup';
 
 import LoginIcon from '@material-ui/icons/AccountBox';
 import RegIcon from '@material-ui/icons/Create';
 
 import {useHistory} from 'react-router-dom';
 import Slide from '@material-ui/core/Slide';
+import Fade from '@material-ui/core/Fade';
+
+import { useTranslation } from 'react-i18next';
 
 import link from '../utils/restful'
 
@@ -26,14 +33,15 @@ const useStyles = makeStyles((theme) => ({
 function Login(props) {
 	const classes = useStyles();
 
+	const {loggedin, setLoggedIn, setUserId, setLoginToken} = useContext(AuthContext);
+	const {day, month, year, changeDate} = useContext(DateContext);
+
+	const { t, i18n } = useTranslation();
+
 	const [username, setUsername] = useState('');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [errorLogin, setErrorLogin] = useState('')
-
-	const [day, setDay] = useState(new Date().getDate());
-	const [month, setMonth] = useState(new Date().getMonth() + 1);
-	const [year, setYear] = useState(new Date().getFullYear());
 
 	const colorSet = [['#0066FF', '#0052D6', '#003DAD', '#002984'], ['#FF5588', '#FF396C', '#FF1C4F', '#FF0033']]
 
@@ -47,16 +55,17 @@ function Login(props) {
 	const history = useHistory();
 
 	const toDay = () => {
-		history.push('/day/' + day + '/' + month + '/' + year);
+		changeDate(new Date().getDate(), new Date().getMonth() + 1, new Date().getFullYear())
+		history.push('/day/' + (new Date().getDate()) + '/' + (new Date().getMonth() + 1) + '/' + (new Date().getFullYear()));
 	}
 	
 	useEffect(() => {
 
-		console.log(props.loggedin);
+		console.log(Object.keys(i18n.store.data))
 
-		if(props.loggedin){
-
-			props.changeDate(day, month, year)
+		if(loggedin){
+			console.log(changeDate);
+			// changeDate(new Date().getDate(), new Date().getMonth() + 1, new Date().getFullYear())
 
 			toDay();
 		}
@@ -116,9 +125,19 @@ function Login(props) {
 			}
 		})).then((res) => {
 			if(res.ok){
-				props.changeDate(day, month, year)
-				props.login();
-				toDay();				
+				Promise.resolve(res.json()).then((jsonData) => {
+					changeDate(day, month, year);
+					
+					setUserId(jsonData.user_id);
+					setLoginToken(jsonData.token);
+					setLoggedIn(true)
+					// props.login();
+					toDay();
+				}).catch((err) => {
+					console.log(err)
+					setErrorLogin('Server error. Please try again later')
+					return;
+				})
 			}
 			else{
 				console.log('404')
@@ -138,6 +157,7 @@ function Login(props) {
 
 	var logo = <div style={{position: 'absolute', top: 0, left: 0, width: '100vw', height: '40vh', backgroundImage: 'url(' + 'img/logo.png' +')', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center'}} />
 
+	// https://stackoverflow.com/questions/55647969/how-to-get-one-elements-to-slide-in-while-the-other-slides-out-using-react-and
 	var showLogin = <Grid container spacing={0} direction="column" justify="center" alignItems="center" style={{marginTop: '45vh'}}>
 						<Grid container item justify="center" alignItems="center" flex={1} style={{maxWidth: '300px', backgroundImage: `${menubgImgStyle2}`, paddingTop: '4px', paddingBottom: '4px'}}>
 							<Grid container item xs={6} justify="center" alignItems="center" >
@@ -145,95 +165,113 @@ function Login(props) {
 									setIsRegister(false)
 								}}
 									startIcon={<LoginIcon/>}
-								>Login</Button>
+								>{t('login.Login')}</Button>
 							</Grid>         
 							<Grid container item xs={6} justify="center" alignItems="center" >
 								<Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
 									setIsRegister(true)
 								}}
 								startIcon={<RegIcon/>}
-								>Register</Button>
+								>{t('login.Register')}</Button>
 							</Grid>         
 						</Grid>         
 						<Grid item>
 						</Grid>                  
 						<Grid item>
 						</Grid>
-						<Slide direction="right" in={!isRegister} timeout={{enter: 100, exit: 20}} mountOnEnter unmountOnExit>
-							<Grid container spacing={0} direction="column" justify="center" alignItems="center" style={{paddingTop: '4px', paddingBottom: '4px'}}>
-								<Grid container item justify="center" alignItems="center" style={{maxWidth: '300px', paddingTop: '4px', paddingBottom: '4px'}}>
-									<TextField
-										fullWidth
-										error={errorLogin !== ''}
-										helperText={errorLogin}
-										margin="dense"
-										label="Email"
-										variant="outlined"
-										onClick={() => setErrorLogin('')}
-										onChange={(e) => setEmail(e.target.value)}
-									/>
-								</Grid>                  
-								<Grid container item justify="center" alignItems="center" style={{maxWidth: '300px', paddingTop: '4px', paddingBottom: '4px'}}>
-									<TextField
-										fullWidth
-										margin="dense"
-										label="Password"
-										type="password"
-										autoComplete="current-password"
-										variant="outlined"
-										onChange={(e) => setPassword(e.target.value)}
-									/>
+						{isRegister ?
+							<Fade in={isRegister} mountOnEnter unmountOnExit>
+								<Grid container spacing={0} direction="column" justify="center" alignItems="center" style={{paddingTop: '4px', paddingBottom: '4px'}}>
+									<Grid container item justify="center" alignItems="center" style={{maxWidth: '300px', paddingTop: '4px', paddingBottom: '4px'}}>
+										<TextField
+											fullWidth
+											error={errorLogin !== ''}
+											helperText={errorLogin}
+											margin="dense"
+											label={t("login.User Name")}
+											variant="outlined"
+											onClick={() => setErrorLogin('')}
+											onChange={(e) => setUsername(e.target.value)}
+										/>
+									</Grid>                  
+									<Grid container item justify="center" alignItems="center" style={{maxWidth: '300px', paddingTop: '4px', paddingBottom: '4px'}}>
+										<TextField
+											fullWidth
+											error={errorLogin !== ''}
+											helperText={errorLogin}
+											margin="dense"
+											label={t("login.Email")}
+											variant="outlined"
+											onClick={() => setErrorLogin('')}
+											onChange={(e) => setEmail(e.target.value)}
+										/>
+									</Grid>                  
+									<Grid container item justify="center" alignItems="center" style={{maxWidth: '300px', paddingTop: '4px', paddingBottom: '4px'}}>
+										<TextField
+											fullWidth
+											margin="dense"
+											label={t("login.Password")}
+											type="password"
+											autoComplete="current-password"
+											variant="outlined"
+											onChange={(e) => setPassword(e.target.value)}
+										/>
+									</Grid>							
 								</Grid>
-							</Grid>
-						</Slide>
-						<Slide direction="left" in={isRegister} timeout={{enter: 100, exit: 20}} mountOnEnter unmountOnExit>
-							<Grid container spacing={0} direction="column" justify="center" alignItems="center" style={{paddingTop: '4px', paddingBottom: '4px'}}>
-								<Grid container item justify="center" alignItems="center" style={{maxWidth: '300px', paddingTop: '4px', paddingBottom: '4px'}}>
-									<TextField
-										fullWidth
-										error={errorLogin !== ''}
-										helperText={errorLogin}
-										margin="dense"
-										label="User Name"
-										variant="outlined"
-										onClick={() => setErrorLogin('')}
-										onChange={(e) => setUsername(e.target.value)}
-									/>
-								</Grid>                  
-								<Grid container item justify="center" alignItems="center" style={{maxWidth: '300px', paddingTop: '4px', paddingBottom: '4px'}}>
-									<TextField
-										fullWidth
-										error={errorLogin !== ''}
-										helperText={errorLogin}
-										margin="dense"
-										label="Email"
-										variant="outlined"
-										onClick={() => setErrorLogin('')}
-										onChange={(e) => setEmail(e.target.value)}
-									/>
-								</Grid>                  
-								<Grid container item justify="center" alignItems="center" style={{maxWidth: '300px', paddingTop: '4px', paddingBottom: '4px'}}>
-									<TextField
-										fullWidth
-										margin="dense"
-										label="Password"
-										type="password"
-										autoComplete="current-password"
-										variant="outlined"
-										onChange={(e) => setPassword(e.target.value)}
-									/>
-								</Grid>							
-							</Grid>
-						</Slide>
-						<Grid item>
-						</Grid>                  
-						<Grid container item justify="center" alignItems="center" style={{maxWidth: '300px', backgroundImage: `${menubgImgStyle}`, paddingTop: '4px', paddingBottom: '4px'}}>
+							</Fade>
+							:
+							null
+						}
+						{isRegister ? null
+							:
+							<Fade in={!isRegister} mountOnEnter unmountOnExit>
+								<Grid container spacing={0} direction="column" justify="center" alignItems="center" style={{paddingTop: '4px', paddingBottom: '4px'}}>
+									<Grid container item justify="center" alignItems="center" style={{maxWidth: '300px', paddingTop: '4px', paddingBottom: '4px'}}>
+										<TextField
+											fullWidth
+											error={errorLogin !== ''}
+											helperText={errorLogin}
+											margin="dense"
+											label={t("login.Email")}
+											variant="outlined"
+											onClick={() => setErrorLogin('')}
+											onChange={(e) => setEmail(e.target.value)}
+										/>
+									</Grid>                  
+									<Grid container item justify="center" alignItems="center" style={{maxWidth: '300px', paddingTop: '4px', paddingBottom: '4px'}}>
+										<TextField
+											fullWidth
+											margin="dense"
+											label={t("login.Password")}
+											type="password"
+											autoComplete="current-password"
+											variant="outlined"
+											onChange={(e) => setPassword(e.target.value)}
+										/>
+									</Grid>
+								</Grid>
+							</Fade>
+						}   
+						<Grid container item justify="center" alignItems="center" style={{maxWidth: '300px', backgroundImage: `${menubgImgStyle}`, paddingTop: '4px', paddingBottom: '4px', margin: '5px 0px'}}>
 							<Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
 								if(isRegister)
 									register();
 								else								
 									login();
-							}}>Confirm</Button>
+							}}>{t('login.Confirm')}</Button>
+						</Grid>                  
+						<Grid container item justify="center" alignItems="center" style={{maxWidth: '300px', paddingTop: '4px', paddingBottom: '4px', margin: '5px 0px'}}>
+							<ButtonGroup variant="text" color="primary">
+								{Object.keys(i18n.store.data).map((val) => (
+									<Button
+										key={val}
+										style={{fontSize: '12px'}}
+										onClick={() => i18n.changeLanguage(val)}
+									>
+										{t('lang.' + val)}
+									</Button>
+								))}
+							</ButtonGroup>
 						</Grid>                  
 					</Grid>
 

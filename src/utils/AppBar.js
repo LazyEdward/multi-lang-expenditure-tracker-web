@@ -1,4 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import {AuthContext} from '../context/AuthContext.js'
+import {DateContext} from '../context/DateContext.js'
+import {DataStoreContext} from '../context/DataStoreContext.js'
+
 import { makeStyles, useTheme, createMuiTheme } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -17,8 +21,13 @@ import ListItem from '@material-ui/core/ListItem';
 import Grid from "@material-ui/core/Grid";
 import Box from '@material-ui/core/Box';
 
+import Dialog from '@material-ui/core/Dialog';
+
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import {useHistory} from 'react-router-dom';
+import { DialogActions, DialogContent, DialogTitle } from "@material-ui/core";
+
+import { useTranslation } from 'react-i18next';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -50,11 +59,19 @@ const CalenAppBar = (props) => {
 
   const history = useHistory();
 
+  const {loggedin, setLoggedIn, setUserId, setLoginToken} = useContext(AuthContext);
+  const {day, month, year, changeDate} = useContext(DateContext);
+  const {lastUpdate, edited, data, data_copy, setLastUpdate, makeChange, setData, setDataCopy} = useContext(DataStoreContext);
+
+  const { t, i18n } = useTranslation();
+
+  const [openWarning, setOpenWarning] = useState(false);
+
   const [openMenu, setOpenMenu] = useState(false);
 
-  const [day, setDay] = useState(new Date().getDate());
-  const [month, setMonth] = useState(new Date().getMonth() + 1);
-  const [year, setYear] = useState(new Date().getFullYear());
+  // const [day, setDay] = useState(new Date().getDate());
+  // const [month, setMonth] = useState(new Date().getMonth() + 1);
+  // const [year, setYear] = useState(new Date().getFullYear());
 
   const theme = useTheme();
   const smUp = useMediaQuery(theme.breakpoints.up('sm'));
@@ -62,7 +79,7 @@ const CalenAppBar = (props) => {
   const [currentMenuElement, setCurrentMenuElement] = useState(0);
 
   const colorSet = [['#0066FF', '#0052D6', '#003DAD', '#002984'], ['#FF5588', '#FF396C', '#FF1C4F', '#FF0033']]
-  const menuElements = ['Day', 'Month', 'Year', 'Setting', 'Logout', '']
+  const menuElements = [t('appBar.Day'), t('appBar.Month'), t('appBar.Year'), t('appBar.Setting'), t('appBar.Logout'), '']
 
   var menubgImgStyle;
 
@@ -85,10 +102,15 @@ const CalenAppBar = (props) => {
   }
 
   const toPast = () => {
+
+    if(edited){
+      setOpenWarning(true);
+      return;
+    }
+
     if(month < 0){
       if(year > new Date().getFullYear() - 5){
-        setYear(year - 1)
-        props.changeDate(day, month, year - 1)
+        changeDate(day, month, year - 1)
         history.push('/year/' + (year - 1));
       }
 
@@ -96,16 +118,14 @@ const CalenAppBar = (props) => {
     else{
       if(day < 0){
         if(month > 1){
-          setMonth(month - 1)
-          props.changeDate(day, month - 1, year)
+          changeDate(day, month - 1, year)
           history.push('/month/' +(month - 1)+'/'+year);
         }
 
       }
       else{
         if(day > 1){
-          setDay(day - 1)
-          props.changeDate(day - 1, month, year)
+          changeDate(day - 1, month, year)
           history.push('/day/' + (day - 1)+'/'+month+'/'+year);
         }
 
@@ -115,12 +135,16 @@ const CalenAppBar = (props) => {
 
   const toFuture = () => {
 
-    console.log(smUp)
+    if(edited){
+      setOpenWarning(true);
+      return;
+    }
+
+    // console.log(smUp)
 
     if(month < 0){
       if(year < new Date().getFullYear() + 5){
-        setYear(year + 1)
-        props.changeDate(day, month, year + 1)
+        changeDate(day, month, year + 1)
         history.push('/year/' + (year + 1));
       }
 
@@ -128,8 +152,7 @@ const CalenAppBar = (props) => {
     else{
       if(day < 0){
         if(month < 12){
-          setMonth(month + 1)
-          props.changeDate(day, month + 1, year)
+          changeDate(day, month + 1, year)
           history.push('/month/' +(month + 1)+'/'+year);
         }
 
@@ -137,8 +160,7 @@ const CalenAppBar = (props) => {
       else{
         var daysInMonth = (month === 2) ? (28 + isLeap(year)) : 31 - (month - 1) % 7 % 2;
         if(day < daysInMonth){
-          setDay(day + 1)
-          props.changeDate(day + 1, month, year)
+          changeDate(day + 1, month, year)
           history.push('/day/' + (day + 1)+'/'+month+'/'+year);
         }
 
@@ -153,121 +175,180 @@ const CalenAppBar = (props) => {
     action()
   }
 
+  const saveChanges = () => {
+
+  }
+
+  const closeWarning = () => {
+    setOpenWarning(false)
+  }
+
   useEffect(() => {
 
-    console.log(props.date)
+    setMenuItem(0 , () => {})
+    setOpenMenu(false)
 
-    if(props.date !== undefined){
-      setDay(props.date.day);
-      setMonth(props.date.month);
-      setYear(props.date.year);
-    }
+  }, [loggedin])
 
-
-    // history.push('/day/' + day +'/'+ month +'/'+ year);
-  }, [])
+  var warnOnChangeDialog = <Dialog open={openWarning} onClose={closeWarning}>
+                            <DialogTitle>
+                              Changes have been detected. Do you want to save changes?
+                            </DialogTitle>
+                            <DialogContent>
+                              <Grid container spacing={0} justify="center" alignItems="center">
+                                <Grid item container spacing={0} justify="center" alignItems="center" xs={12} sm={3} style={{padding: '5px 30px'}}>
+                                  <Button fullWidth style={{textTransform: 'none'}} color="primary" variant="contained">Yes</Button>
+                                </Grid>
+                                <Grid item container spacing={0} justify="center" alignItems="center" xs={12} sm={3} style={{padding: '5px 30px'}}>
+                                  <Button fullWidth style={{textTransform: 'none'}} variant="outlined">No</Button>
+                                </Grid>
+                                <Grid item container spacing={0} justify="center" alignItems="center" xs={12} sm={3} style={{padding: '5px 30px'}}>
+                                  <Button fullWidth style={{textTransform: 'none'}} variant="outlined" onClick={closeWarning}>Cancel</Button>
+                                </Grid>
+                              </Grid>
+                            </DialogContent>
+                          </Dialog>
 
   var showDateBar;
 
+  var showBar;
+
+  if(loggedin){
+    showBar = <div>
+                {warnOnChangeDialog}
+                <div className={classes.root}>
+                  <AppBar className={classes.frontdrop} position="relative">
+                    <Toolbar>
+                      <IconButton
+                        edge="start"
+                        color="inherit"
+                        aria-label="menu"
+                        onClick={(e) => setOpenMenu(!openMenu)}
+                      >
+                        <MenuIcon/>
+                      </IconButton>
+                      <Grid container spacing={1} justify="center" alignItems="center">
+                        <IconButton color="inherit" onClick={toPast}>
+                          <LeftIcon />
+                        </IconButton>
+
+                        <Typography variant="h6">
+                          {day > 0 && month > 0
+                            ? day.toString().padStart(2, "0") +
+                              "/" +
+                              month.toString().padStart(2, "0") +
+                              "/" +
+                              year
+                            : month > 0
+                            ? month.toString().padStart(2, "0") + "/" + year
+                            : year}
+                        </Typography>
+
+                        <IconButton color="inherit" onClick={toFuture}>
+                          <RightIcon />
+                        </IconButton>
+                      </Grid>
+                      <IconButton
+                        edge="end"
+                        color="inherit"
+                        aria-label="menu"
+                        onClick={(e) => saveChanges()}
+                      >
+                        <SaveIcon />
+                      </IconButton>
+                    </Toolbar>
+                  </AppBar>
+                  <Collapse in={openMenu} timeout="auto" unmountOnExit>
+                    <Grid container spacing={0} justify="center" alignItems="center" flex={1}>
+                      <Grid container spacing={0} justify="center" alignItems="center" flex={1} style={{marginLeft: '5px', marginRight: '5px', backgroundImage: `${menubgImgStyle}`}}>
+                        <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
+                            <Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
+                              if(edited){
+      setOpenWarning(true);
+      return;
+    }
+                              
+                              setMenuItem(0 , () => {
+                                changeDate(day === -1 ? 1 : day, month === -1 ? 1 : month, year)
+                                history.push('/day/'+ (day === -1 ? 1 : day) +'/'+ (month === -1 ? 1 : month) +'/'+ year);
+                              })               
+                              setOpenMenu(!openMenu)
+                            }}>{menuElements[0]}</Button>
+                        </Grid>
+                        <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
+                            <Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
+                              if(edited){
+      setOpenWarning(true);
+      return;
+    }
+                              
+                              setMenuItem(1, () => {
+                                changeDate(-1, month === -1 ? 1 : month, year)
+                                history.push('/month/'+ (month === -1 ? 1 : month) +'/'+ year);   
+                              })             
+                              setOpenMenu(!openMenu)
+                            }}>{menuElements[1]}</Button>
+                        </Grid>
+                        <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
+                          <Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
+                              if(edited){
+      setOpenWarning(true);
+      return;
+    }
+                              
+                              setMenuItem(2, () => {
+                                changeDate(-1, -1, year)
+                                history.push('/year/' + year);  
+                              })
+                              setOpenMenu(!openMenu)
+                            }}>{menuElements[2]}</Button>
+                        </Grid>
+                        <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
+                            <Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
+                              if(edited){
+      setOpenWarning(true);
+      return;
+    }
+                              
+                              setMenuItem(3, () => {})
+                              setOpenMenu(!openMenu)
+                            }}>{menuElements[3]}</Button>
+                        </Grid>
+                        <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
+                          <Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
+                              if(edited){
+      setOpenWarning(true);
+      return;
+    }
+                              
+                              setMenuItem(4, () => {
+                                // props.logout()
+                                setUserId('');
+                                setLoginToken('');
+                                // setData(null)
+                                setLoggedIn(false);
+                                history.push('/')
+                              })
+                            }}>{menuElements[4]}</Button>
+                        </Grid>
+                        <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
+                          <Typography> </Typography>
+                        </Grid>
+                      </Grid>                
+                    </Grid>                
+                  </Collapse>
+                  <Backdrop className={classes.backdrop} open={openMenu} onClick={(e) => setOpenMenu(false)} />
+                </div>
+              </div>
+  }
+  else
+    showBar = null
+
+
   return (
-    <div className={classes.root}>
-      <AppBar className={classes.frontdrop} position="relative">
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            onClick={(e) => setOpenMenu(!openMenu)}
-          >
-            <MenuIcon/>
-          </IconButton>
-          <Grid container spacing={1} justify="center" alignItems="center">
-            <IconButton color="inherit" onClick={toPast}>
-              <LeftIcon />
-            </IconButton>
-
-            <Typography variant="h6">
-              {day > 0 && month > 0
-                ? day.toString().padStart(2, "0") +
-                  "/" +
-                  month.toString().padStart(2, "0") +
-                  "/" +
-                  year
-                : month > 0
-                ? month.toString().padStart(2, "0") + "/" + year
-                : year}
-            </Typography>
-
-            <IconButton color="inherit" onClick={toFuture}>
-              <RightIcon />
-            </IconButton>
-          </Grid>
-          <IconButton
-            edge="end"
-            color="inherit"
-            aria-label="menu"
-          >
-            <SaveIcon />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-      <Collapse in={openMenu} timeout="auto" unmountOnExit>
-        <Grid container spacing={0} justify="center" alignItems="center" flex={1}>
-          <Grid container spacing={0} justify="center" alignItems="center" flex={1} style={{marginLeft: '5px', marginRight: '5px', backgroundImage: `${menubgImgStyle}`}}>
-            <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
-                <Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
-                  setMenuItem(0 , () => {
-                    if(day === -1)
-                      setDay(1)
-                    if(month === -1)
-                      setMonth(1)
-                    props.changeDate(day === -1 ? 1 : day, month === -1 ? 1 : month, year)
-                    history.push('/day/'+ (day === -1 ? 1 : day) +'/'+ (month === -1 ? 1 : month) +'/'+ year);
-                  })               
-                }}>{menuElements[0]}</Button>
-            </Grid>
-            <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
-                <Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
-                  setMenuItem(1, () => {
-                    setDay(-1)
-                    if(month === -1)
-                      setMonth(1)
-                    props.changeDate(-1, month === -1 ? 1 : month, year)
-                    history.push('/month/'+ (month === -1 ? 1 : month) +'/'+ year);   
-                  })             
-                }}>{menuElements[1]}</Button>
-            </Grid>
-            <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
-              <Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
-                  setMenuItem(2, () => {
-                    setDay(-1)
-                    setMonth(-1)
-                    props.changeDate(-1, -1, year)
-                    history.push('/year/' + year);  
-                  })
-                }}>{menuElements[2]}</Button>
-            </Grid>
-            <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
-                <Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
-                  setMenuItem(3, () => {})
-                }}>{menuElements[3]}</Button>
-            </Grid>
-            <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
-              <Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
-                  setMenuItem(4, () => {
-                    props.logout()
-                    history.push('/')
-                  })
-                }}>{menuElements[4]}</Button>
-            </Grid>
-            <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
-              <Typography> </Typography>
-            </Grid>
-          </Grid>                
-        </Grid>                
-      </Collapse>
-      <Backdrop className={classes.backdrop} open={openMenu} onClick={(e) => setOpenMenu(false)} />
-    </div>
+    <>
+      {showBar}
+    </>
   );
 }
 
