@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext }  from 'react';
 import {AuthContext} from '../context/AuthContext.js'
+import {StyleContext} from '../context/StyleContext.js'
 import {DateContext} from '../context/DateContext.js'
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -35,6 +36,7 @@ function Login(props) {
 
 	const {loggedin, setLoggedIn, setUserId, setLoginToken} = useContext(AuthContext);
 	const {day, month, year, changeDate} = useContext(DateContext);
+	const {colorSet, pickedStyle} = useContext(StyleContext);
 
 	const { t, i18n } = useTranslation();
 
@@ -43,7 +45,7 @@ function Login(props) {
 	const [password, setPassword] = useState('');
 	const [errorLogin, setErrorLogin] = useState('')
 
-	const colorSet = [['#0066FF', '#0052D6', '#003DAD', '#002984'], ['#FF5588', '#FF396C', '#FF1C4F', '#FF0033']]
+	// const colorSet = [['#0066FF', '#0052D6', '#003DAD', '#002984'], ['#FF5588', '#FF396C', '#FF1C4F', '#FF0033']]
 
 	var loginImgStyle = 'linear-gradient(rgba(0,41,132,0.4), rgba(0,61,173,0.65), rgba(0,82,214,0.7), rgba(0,102,255,0.9))';
 	var menubgImgStyle = 'radial-gradient(circle at 50% 50%, ' + colorSet[0][0] + ' 5%, ' + colorSet[0][1] + ' 15%, ' + colorSet[0][2] + ' 25%, ' + colorSet[0][3] + ' 50%)';

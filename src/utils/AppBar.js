@@ -1,7 +1,10 @@
 import React, { useEffect, useState, useContext } from "react";
 import {AuthContext} from '../context/AuthContext.js'
+import {StyleContext} from '../context/StyleContext.js'
 import {DateContext} from '../context/DateContext.js'
 import {DataStoreContext} from '../context/DataStoreContext.js'
+
+import DateUtils from './DateUtils.js'
 
 import { makeStyles, useTheme, createMuiTheme } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
@@ -63,6 +66,8 @@ const CalenAppBar = (props) => {
   const {day, month, year, changeDate} = useContext(DateContext);
   const {lastUpdate, edited, data, data_copy, setLastUpdate, makeChange, setData, setDataCopy} = useContext(DataStoreContext);
 
+  const {colorSet, appBarTitleColor, pickedStyle} = useContext(StyleContext);
+
   const { t, i18n } = useTranslation();
 
   const [openWarning, setOpenWarning] = useState(false);
@@ -78,28 +83,28 @@ const CalenAppBar = (props) => {
 
   const [currentMenuElement, setCurrentMenuElement] = useState(0);
 
-  const colorSet = [['#0066FF', '#0052D6', '#003DAD', '#002984'], ['#FF5588', '#FF396C', '#FF1C4F', '#FF0033']]
+  // const colorSet = [['#0066FF', '#0052D6', '#003DAD', '#002984'], ['#FF5588', '#FF396C', '#FF1C4F', '#FF0033']]
   const menuElements = [t('appBar.Day'), t('appBar.Month'), t('appBar.Year'), t('appBar.Setting'), t('appBar.Logout'), '']
 
   var menubgImgStyle;
 
   if(smUp){
-    menubgImgStyle = 'radial-gradient(circle at ' + (currentMenuElement + 0.5) / menuElements.length * 100 + '% 50%, ' + colorSet[0][0] + ', ' + colorSet[0][1] + ', ' + colorSet[0][2] + ', ' + colorSet[0][3] + ' 20%)'
+    menubgImgStyle = 'radial-gradient(circle at ' + (currentMenuElement + 0.5) / menuElements.length * 100 + '% 50%, ' + colorSet[pickedStyle][0] + ', ' + colorSet[pickedStyle][1] + ', ' + colorSet[pickedStyle][2] + ', ' + colorSet[pickedStyle][3] + ' 20%)'
   }
   else{
-    menubgImgStyle = 'radial-gradient(circle at 50% ' + (currentMenuElement + 0.5) / (menuElements.length - 1) * 100 + '%, ' + colorSet[0][0] + ' 5%, ' + colorSet[0][1] + ' 15%, ' + colorSet[0][2] + ' 25%, ' + colorSet[0][3] + ' 50%)'
+    menubgImgStyle = 'radial-gradient(circle at 50% ' + (currentMenuElement + 0.5) / (menuElements.length - 1) * 100 + '%, ' + colorSet[pickedStyle][0] + ' 5%, ' + colorSet[pickedStyle][1] + ' 15%, ' + colorSet[pickedStyle][2] + ' 25%, ' + colorSet[pickedStyle][3] + ' 50%)'
   }
 
-  const isLeap = (year) => {
-    if (year % 400 === 0)
-        return 1
-    if (year % 100 === 0)
-        return 0
-    if (year % 4 === 0)
-        return 1
-    else
-        return 0
-  }
+  // const isLeap = (year) => {
+  //   if (year % 400 === 0)
+  //       return 1
+  //   if (year % 100 === 0)
+  //       return 0
+  //   if (year % 4 === 0)
+  //       return 1
+  //   else
+  //       return 0
+  // }
 
   const toPast = () => {
 
@@ -121,12 +126,30 @@ const CalenAppBar = (props) => {
           changeDate(day, month - 1, year)
           history.push('/month/' +(month - 1)+'/'+year);
         }
+        else{
+          if(year > new Date().getFullYear() - 5){
+            changeDate(day, 12, year - 1)
+            history.push('/month/' +12+'/'+(year - 1));
+          }
+        }
 
       }
       else{
         if(day > 1){
           changeDate(day - 1, month, year)
           history.push('/day/' + (day - 1)+'/'+month+'/'+year);
+        }
+        else{
+          if(month > 1){
+            changeDate(31, month - 1, year)
+            history.push('/day/' + 31+'/'+(month - 1)+'/'+year);
+          }
+          else{
+            if(year > new Date().getFullYear() - 5){
+              changeDate(31, 12, year - 1)
+              history.push('/day/' + 31+'/'+12+'/'+(year - 1));
+            }
+          }
         }
 
       }
@@ -155,13 +178,32 @@ const CalenAppBar = (props) => {
           changeDate(day, month + 1, year)
           history.push('/month/' +(month + 1)+'/'+year);
         }
+        else{
+          if(year < new Date().getFullYear() + 5){
+            changeDate(day, 1, year + 1)
+            history.push('/month/' +1+'/'+(year + 1));
+          }
+        }
 
       }
       else{
-        var daysInMonth = (month === 2) ? (28 + isLeap(year)) : 31 - (month - 1) % 7 % 2;
-        if(day < daysInMonth){
+        // var daysInMonth = (month === 2) ? (28 + isLeap(year)) : 31 - (month - 1) % 7 % 2;
+        if(day < DateUtils.daysInMonth(month, year)){
+        // if(day < daysInMonth){
           changeDate(day + 1, month, year)
           history.push('/day/' + (day + 1)+'/'+month+'/'+year);
+        }
+        else{
+          if(month < 12){
+            changeDate(day, month + 1, year)
+            history.push('/day/' +1+'/'+(month + 1)+'/'+year);
+          }
+          else{
+            if(year < new Date().getFullYear() + 5){
+              changeDate(day, month, year + 1)
+              history.push('/day/' +1+'/'+1+'/'+(year + 1));
+            }
+          }
         }
 
       }
@@ -185,10 +227,10 @@ const CalenAppBar = (props) => {
 
   useEffect(() => {
 
-    setMenuItem(0 , () => {})
     setOpenMenu(false)
+    setMenuItem(month < 0 ? 2 : (day < 0 ? 1 : 0) , () => {})
 
-  }, [loggedin])
+  }, [day, month, year])
 
   var warnOnChangeDialog = <Dialog open={openWarning} onClose={closeWarning}>
                             <DialogTitle>
@@ -217,7 +259,8 @@ const CalenAppBar = (props) => {
     showBar = <div>
                 {warnOnChangeDialog}
                 <div className={classes.root}>
-                  <AppBar className={classes.frontdrop} position="relative">
+                  {/* <AppBar className={classes.frontdrop} position="relative" color={pickedStyle === 0 ? 'primary' : 'secondary'}> */}
+                  <AppBar className={classes.frontdrop} position="relative" style={{backgroundColor: `${appBarTitleColor[pickedStyle]}`}}>
                     <Toolbar>
                       <IconButton
                         edge="start"
@@ -264,9 +307,9 @@ const CalenAppBar = (props) => {
                         <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
                             <Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
                               if(edited){
-      setOpenWarning(true);
-      return;
-    }
+                                setOpenWarning(true);
+                                return;
+                              }
                               
                               setMenuItem(0 , () => {
                                 changeDate(day === -1 ? 1 : day, month === -1 ? 1 : month, year)
@@ -278,9 +321,9 @@ const CalenAppBar = (props) => {
                         <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
                             <Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
                               if(edited){
-      setOpenWarning(true);
-      return;
-    }
+                                setOpenWarning(true);
+                                return;
+                              }
                               
                               setMenuItem(1, () => {
                                 changeDate(-1, month === -1 ? 1 : month, year)
@@ -292,9 +335,9 @@ const CalenAppBar = (props) => {
                         <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
                           <Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
                               if(edited){
-      setOpenWarning(true);
-      return;
-    }
+                                setOpenWarning(true);
+                                return;
+                              }
                               
                               setMenuItem(2, () => {
                                 changeDate(-1, -1, year)
@@ -306,9 +349,9 @@ const CalenAppBar = (props) => {
                         <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
                             <Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
                               if(edited){
-      setOpenWarning(true);
-      return;
-    }
+                                setOpenWarning(true);
+                                return;
+                              }
                               
                               setMenuItem(3, () => {})
                               setOpenMenu(!openMenu)
@@ -317,9 +360,9 @@ const CalenAppBar = (props) => {
                         <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
                           <Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
                               if(edited){
-      setOpenWarning(true);
-      return;
-    }
+                                setOpenWarning(true);
+                                return;
+                              }
                               
                               setMenuItem(4, () => {
                                 // props.logout()
