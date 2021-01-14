@@ -4,36 +4,25 @@ import {StyleContext} from '../context/StyleContext.js'
 import {DateContext} from '../context/DateContext.js'
 import {DataStoreContext} from '../context/DataStoreContext.js'
 
-import { makeStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import RemoveIcon from '@material-ui/icons/DeleteForever';
-
 import {useHistory} from 'react-router-dom';
 
 import { useTranslation } from 'react-i18next';
+
+import OuterLayout from '../utils/OuterLayout.js'
+import DayListItem from '../utils/DayListItem.js'
 
 // https://stackoverflow.com/questions/63150232/react-js-material-ui-how-to-format-textfield-as-an-amount
 
 import link from '../utils/restful'
 import { Divider, Grid, TextField, Button, List, ListItem, Paper } from '@material-ui/core';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    ...theme.typography.button,
-    backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(1),
-  },
-}));
-
 const Day = (props) => {
-  const classes = useStyles();
   const history = useHistory();
 
   const {loggedin, setLoggedIn, setUserId, setLoginToken} = useContext(AuthContext);
   const {day, month, year, changeDate} = useContext(DateContext);
   const {lastUpdate, edited, data, data_copy, setLastUpdate, makeChange, setData, setDataCopy} = useContext(DataStoreContext);
-  const {colorSet, appBarTitleColor, pickedStyle} = useContext(StyleContext);
+  const {colorSet, appBarTitleColor, darkMode, pickedStyle, muiTheme} = useContext(StyleContext);
 
   const [total, setTotal] = useState(0)
   const [items, setItems] = useState(null);
@@ -220,55 +209,69 @@ const Day = (props) => {
                         {items.map((val, index) => 
                           <div key={index}>
                             {index === 0 ? null : <Divider/>}
-                            <ListItem style={{padding: '3px'}}>
-                            <Grid container spacing={0} justify="flex-start" alignItems="center">
-                              <Grid item xs={6} style={{paddingRight: '15px'}}>
-                                <TextField
-                                  fullWidth
-                                  color={pickedStyle === 0 ? 'primary' : 'secondary'}
-                                  variant='outlined'
-                                  margin='dense'
-                                  label='item'
-                                  value={val.name}
-                                  onChange={(e) => {renameItem(index, e.target.value)}}
-                                  // onKeyPress={(e) => {
-                                  //   if(index === items.length - 1)
-                                  //     if(e.key === 'Enter')
-                                  //       changeFocus();
-                                  // }}
-                                />
+                            <DayListItem
+                              index={index}
+                              val={val}
+                              items={items}
+                              darkMode={darkMode}
+                              appBarTitleColor={appBarTitleColor}
+                              pickedStyle={pickedStyle}
+                              renameItem={renameItem}
+                              repriceItem={repriceItem}
+                              addItem={addItem}
+                              removeItem={removeItem}
+                              passfoucs={passfoucs}
+                              />
+                            {/* <ListItem style={{padding: '3px'}}>
+                              <Grid container spacing={0} justify="flex-start" alignItems="center">
+                                <Grid item xs={6} style={{paddingRight: '15px'}}>
+                                  <TextField
+                                    fullWidth
+                                    color={pickedStyle === 0 ? 'primary' : 'secondary'}
+                                    color='primary'
+                                    variant='outlined'
+                                    margin='dense'
+                                    label='item'
+                                    value={val.name}
+                                    onChange={(e) => {renameItem(index, e.target.value)}}
+                                    // onKeyPress={(e) => {
+                                    //   if(index === items.length - 1)
+                                    //     if(e.key === 'Enter')
+                                    //       changeFocus();
+                                    // }}
+                                  />
+                                </Grid>
+                                <Grid item xs={4} style={{paddingRight: '15px'}}>
+                                  <TextField
+                                    fullWidth
+                                    color='primary'
+                                    autoFocus={passfoucs}
+                                    variant='outlined'
+                                    margin='dense'
+                                    label='price'
+                                    inputProps={{ style: {textAlign: 'end'} }}
+                                    value={val.price}
+                                    onChange={(e) => {repriceItem(index, e.target.value)}}
+                                    onKeyPress={(e) => {
+                                      if(index === items.length - 1)
+                                        if(e.key === 'Enter')
+                                          addItem();
+                                    }}
+                                  />
+                                </Grid>
+                                <Grid item xs={2} style={{paddingRight: '15px'}}>
+                                  <IconButton
+                                    // color="primary"
+                                    style={{color: `${appBarTitleColor[pickedStyle]}`}}
+                                    onClick={() => {
+                                      removeItem(index);
+                                    }}
+                                    >
+                                    <RemoveIcon/>
+                                  </IconButton>                            
+                                </Grid>
                               </Grid>
-                              <Grid item xs={4} style={{paddingRight: '15px'}}>
-                                <TextField
-                                  fullWidth
-                                  color={pickedStyle === 0 ? 'primary' : 'secondary'}
-                                  autoFocus={passfoucs}
-                                  variant='outlined'
-                                  margin='dense'
-                                  label='price'
-                                  inputProps={{ style: {textAlign: 'end'} }}
-                                  value={val.price}
-                                  onChange={(e) => {repriceItem(index, e.target.value)}}
-                                  onKeyPress={(e) => {
-                                    if(index === items.length - 1)
-                                      if(e.key === 'Enter')
-                                        addItem();
-                                  }}
-                                />
-                              </Grid>
-                              <Grid item xs={2} style={{paddingRight: '15px'}}>
-                                <IconButton
-                                  // color="primary"
-                                  style={{color: `${appBarTitleColor[pickedStyle]}`}}
-                                  onClick={() => {
-                                    removeItem(index);
-                                  }}
-                                  >
-                                  <RemoveIcon/>
-                                </IconButton>                            
-                              </Grid>
-                            </Grid>
-                            </ListItem>
+                            </ListItem> */}
                           </div>
                         )}
                       </List>
@@ -278,36 +281,50 @@ const Day = (props) => {
 
 
 	return (
-    <div style={{paddingLeft: '10px', paddingRight: '10px'}}>
-        <Grid item container spacing={0} justify="flex-end" alignItems="center" style={{paddingTop: '4px', paddingBottom: '4px', margin: '5px'}}>
-          <Grid item xs={6} sm={2} style={{textAlign: 'center'}}>
-            <Typography>Daily total: </Typography>
-          </Grid>
-          <Grid item xs={6} sm={3} style={{paddingRight: '2vw'}}>
-            <TextField
-              disabled={true}
-              fullWidth
-              variant='outlined'
-              margin='dense'
-              inputProps={{ style: {textAlign: 'end'} }}
-              value={total}
-            />
-          </Grid>
-        </Grid>
-      <Divider/>
-      <Grid container spacing={0} item justify="center" alignItems="center">
-        <Grid item xs={12} sm={10}>          
-          {showItems}
-        </Grid>     
-        <Grid item xs={12} sm={6} style={{paddingTop: '10px'}}>          
-          <div style={{backgroundImage: `${menubgImgStyle}`, paddingTop: '4px', paddingBottom: '4px'}}>
-            <Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
-                addItem()
-            }}>Add item</Button>
-          </div>
-        </Grid>     
-      </Grid>     
-    </div>
+    // <ThemeProvider theme={muiTheme}>
+    //   <CssBaseline />
+    //   <div style={{paddingLeft: '10px', paddingRight: '10px'}}>
+    //       <Grid item container spacing={0} justify="flex-end" alignItems="center" style={{paddingTop: '4px', paddingBottom: '4px', margin: '5px'}}>
+    //         <Grid item xs={6} sm={2} style={{textAlign: 'center'}}>
+    //           <Typography>Daily total: </Typography>
+    //         </Grid>
+    //         <Grid item xs={6} sm={3} style={{paddingRight: '2vw'}}>
+    //           <TextField
+    //             disabled={true}
+    //             fullWidth
+    //             variant='outlined'
+    //             margin='dense'
+    //             inputProps={{ style: {textAlign: 'end'} }}
+    //             value={total}
+    //           />
+    //         </Grid>
+    //       </Grid>
+    //     <Divider/>
+    //     <Grid item>
+    //       <Typography paragraph/>
+    //     </Grid>
+    //     <Grid container spacing={0} item justify="center" alignItems="center">
+    //       <Grid item xs={12} sm={10}>          
+    //         {showItems}
+    //       </Grid>     
+    //       <Grid item xs={12} sm={6} style={{paddingTop: '10px'}}>          
+    //         <div style={{backgroundImage: `${menubgImgStyle}`, paddingTop: '4px', paddingBottom: '4px'}}>
+    //           <Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
+    //               addItem()
+    //           }}>Add item</Button>
+    //         </div>
+    //       </Grid>     
+    //     </Grid>     
+    //   </div>
+    // </ThemeProvider>
+    <OuterLayout
+      muiTheme={muiTheme}
+      viewVariant={'Daily'}
+      total={total}
+      showItems={showItems}
+      addItem={addItem}
+      menubgImgStyle={menubgImgStyle}
+    />
   );
 }
 

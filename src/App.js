@@ -15,6 +15,7 @@ import Login from './routes/login.js';
 import Day from './routes/day.js';
 import Month from './routes/month.js';
 import Year from './routes/year.js';
+import Setting from './routes/setting.js';
 
 import {Route, Switch, BrowserRouter} from 'react-router-dom';
 import { createBrowserHistory } from 'history';
@@ -37,6 +38,7 @@ function App() {
                   <Route path='/year/:year' render={(props) => <Year {...props} />} />
                   <Route path='/month/:month/:year' render={(props) => <Month {...props} />}/>
                   <Route path='/day/:day/:month/:year' render={(props) => <Day {...props} />}/>
+                  <Route path='/setting' render={(props) => <Setting {...props} />} />
                 </Switch>
               </BrowserRouter>
             </StyleProvider>

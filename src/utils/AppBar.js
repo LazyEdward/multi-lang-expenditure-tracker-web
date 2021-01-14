@@ -6,7 +6,7 @@ import {DataStoreContext} from '../context/DataStoreContext.js'
 
 import DateUtils from './DateUtils.js'
 
-import { makeStyles, useTheme, createMuiTheme } from "@material-ui/core/styles";
+import { makeStyles, createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
@@ -58,7 +58,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const CalenAppBar = (props) => {
-  const classes = useStyles();
 
   const history = useHistory();
 
@@ -66,7 +65,9 @@ const CalenAppBar = (props) => {
   const {day, month, year, changeDate} = useContext(DateContext);
   const {lastUpdate, edited, data, data_copy, setLastUpdate, makeChange, setData, setDataCopy} = useContext(DataStoreContext);
 
-  const {colorSet, appBarTitleColor, pickedStyle} = useContext(StyleContext);
+  const {colorSet, appBarTitleColor, pickedStyle, muiTheme} = useContext(StyleContext);
+
+  const classes = useStyles(muiTheme);
 
   const { t, i18n } = useTranslation();
 
@@ -78,8 +79,7 @@ const CalenAppBar = (props) => {
   // const [month, setMonth] = useState(new Date().getMonth() + 1);
   // const [year, setYear] = useState(new Date().getFullYear());
 
-  const theme = useTheme();
-  const smUp = useMediaQuery(theme.breakpoints.up('sm'));
+  const smUp = useMediaQuery(muiTheme.breakpoints.up('sm'));
 
   const [currentMenuElement, setCurrentMenuElement] = useState(0);
 
@@ -256,11 +256,11 @@ const CalenAppBar = (props) => {
   var showBar;
 
   if(loggedin){
-    showBar = <div>
+    showBar = <ThemeProvider theme={muiTheme}>
                 {warnOnChangeDialog}
                 <div className={classes.root}>
-                  {/* <AppBar className={classes.frontdrop} position="relative" color={pickedStyle === 0 ? 'primary' : 'secondary'}> */}
-                  <AppBar className={classes.frontdrop} position="relative" style={{backgroundColor: `${appBarTitleColor[pickedStyle]}`}}>
+                  <AppBar className={classes.frontdrop} position="relative" color='primary'>
+                  {/* <AppBar className={classes.frontdrop} position="relative" style={{backgroundColor: `${appBarTitleColor[pickedStyle]}`}}> */}
                     <Toolbar>
                       <IconButton
                         edge="start"
@@ -353,7 +353,9 @@ const CalenAppBar = (props) => {
                                 return;
                               }
                               
-                              setMenuItem(3, () => {})
+                              setMenuItem(3, () => {
+                                history.push('/setting')
+                              })
                               setOpenMenu(!openMenu)
                             }}>{menuElements[3]}</Button>
                         </Grid>
@@ -364,6 +366,7 @@ const CalenAppBar = (props) => {
                                 return;
                               }
                               
+                              setOpenMenu(!openMenu)
                               setMenuItem(4, () => {
                                 // props.logout()
                                 setUserId('');
@@ -382,7 +385,7 @@ const CalenAppBar = (props) => {
                   </Collapse>
                   <Backdrop className={classes.backdrop} open={openMenu} onClick={(e) => setOpenMenu(false)} />
                 </div>
-              </div>
+              </ThemeProvider>
   }
   else
     showBar = null
