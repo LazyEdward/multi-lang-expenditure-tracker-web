@@ -13,6 +13,7 @@ import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import SaveIcon from "@material-ui/icons/Save";
+import PdfIcon from '@material-ui/icons/PictureAsPdf';
 import MenuIcon from "@material-ui/icons/Menu";
 import LeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import RightIcon from "@material-ui/icons/KeyboardArrowRight";
@@ -31,6 +32,12 @@ import {useHistory} from 'react-router-dom';
 import { DialogActions, DialogContent, DialogTitle } from "@material-ui/core";
 
 import { useTranslation } from 'react-i18next';
+
+// import { renderToString } from "react-dom/server";
+// import jsPDF from "jspdf";
+// import 'jspdf-autotable'
+
+// import PDFGenerator from '../utils/PDFGenerator.js'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -217,9 +224,142 @@ const CalenAppBar = (props) => {
     action()
   }
 
-  const saveChanges = () => {
+  // const exportResult = () => {
 
-  }
+  //   if(edited){
+  //     setOpenWarning(true);
+  //     return;
+  //   }
+
+  //   var filename =
+  //     (day > 0 ? day.toString().padStart(2, "0") + "-" : "")
+  //       + (month > 0 ? month.toString().padStart(2, "0") + "-" : "")
+  //       + year + '_report';
+
+  //   var title = '';
+  //   var subTitles = [];
+  //   var headers = [];
+  //   var details = [];
+
+  //   if(day > 0 && month > 0){
+  //     title = 'daily report';
+
+  //     let total = 0;
+  //     headers.push(['Item', 'Price'])
+
+  //     console.log(data);
+
+  //     if(data !== null){
+  //       if(data[year] !== undefined){
+  //         if(data[year][month.toString().padStart(2, "0")] !== undefined){
+  //           if(data[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")] !== undefined){
+  //             total = data[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")].total;
+  //             var details_0 = []              
+
+  //             for(var i = 0; i < data[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")].items.length; i++){
+  //               details_0.push([data[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")].items[i].name, data[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")].items[i].price])
+  //             }
+  
+  //             details.push(details_0);
+
+  //           }
+  //         }
+  //       }
+  //     }
+
+  //     subTitles.push((day > 0 ? day.toString().padStart(2, "0") + "/" : "")
+  //       + (month > 0 ? month.toString().padStart(2, "0") + "/" : "")
+  //       + year + ' total: ' + total);
+
+      
+  //   }
+  //   else if(month > 0){
+  //     title = 'monthly report';
+
+  //     let total = 0;
+  //     headers.push(['Day', 'Price'])
+
+  //     console.log(data);
+
+  //     if(data !== null){
+  //       if(data[year] !== undefined){
+  //         if(data[year][month.toString().padStart(2, "0")] !== undefined){
+  //           var details_0 = []              
+
+  //           for(var i = 1; i < DateUtils.daysInMonth(month,year) + 1; i++){
+
+  //             if(data[year][month.toString().padStart(2, "0")][i.toString().padStart(2, "0")] === undefined){
+  //               details_0.push([DateUtils.getWeekDay(i, month, year) === 0 ? (i + ', ' + DateUtils.weekdays[DateUtils.getWeekDay(i, month, year)]): i, 0])
+  //             }
+  //             else{
+  //               details_0.push([DateUtils.getWeekDay(i, month, year) === 0 ? (i + ', ' +  DateUtils.weekdays[DateUtils.getWeekDay(i, month, year)]): i, data[year][month.toString().padStart(2, "0")][i.toString().padStart(2, "0")].total])
+  //               total += parseFloat(data[year][month.toString().padStart(2, "0")][i.toString().padStart(2, "0")].total) * 100;
+  //             }
+  //           }
+
+  //           // for(var d of Object.keys(data[year][month.toString().padStart(2, "0")])){
+  //           //   details_0.push([d, data[year][month.toString().padStart(2, "0")][d].total])
+  //           //   total += data[year][month.toString().padStart(2, "0")][d].total;
+  //           // }
+  //           total /= 100;
+  //           details.push(details_0);
+
+  //         }
+  //       }
+  //     }
+
+  //     subTitles.push((month > 0 ? month.toString().padStart(2, "0") + "/" : "")
+  //       + year + ' total: ' + total);
+  //   }
+  //   else{
+  //     title = 'annual report';
+
+  //     let total = 0;
+  //     headers.push(['Month', 'Price'])
+
+  //     console.log(data);
+
+  //     if(data !== null){
+  //       if(data[year] !== undefined){
+
+  //         var details_0 = []              
+
+  //         for(var i = 1; i < 13; i++){
+  //           if(data[year][i.toString().padStart(2, "0")] === undefined){
+  //             details_0.push([DateUtils.months[i - 1], 0])
+  //           }
+  //           else{
+  //             let subtotal = 0;
+
+  //             for(var j = 1; j < DateUtils.daysInMonth(i,year) + 1; j++){
+  //               if(data[year][i.toString().padStart(2, "0")][j.toString().padStart(2, "0")] === undefined)
+  //                 continue;
+
+  //               subtotal += parseFloat(data[year][i.toString().padStart(2, "0")][j.toString().padStart(2, "0")].total) * 100;
+  //             }
+
+  //             subtotal /= 100;
+  //             total += parseFloat(subtotal) * 100;
+
+  //             details_0.push([DateUtils.months[i - 1], subtotal])
+  //           }
+  //         }
+
+  //         // for(var d of Object.keys(data[year][month.toString().padStart(2, "0")])){
+  //         //   details_0.push([d, data[year][month.toString().padStart(2, "0")][d].total])
+  //         //   total += data[year][month.toString().padStart(2, "0")][d].total;
+  //         // }
+  //         total /= 100;
+  //         details.push(details_0);
+  //       }
+  //     }
+
+  //     subTitles.push(year + ' total: ' + total);
+  //   }
+
+  //   PDFGenerator(filename, title, subTitles, headers, details);
+
+  // }
 
   const closeWarning = () => {
     setOpenWarning(false)
@@ -234,11 +374,11 @@ const CalenAppBar = (props) => {
 
   var warnOnChangeDialog = <Dialog open={openWarning} onClose={closeWarning}>
                             <DialogTitle>
-                              Changes have been detected. Do you want to save changes?
+                              {t('appBar.change')}
                             </DialogTitle>
                             <DialogContent>
                               <Grid container spacing={0} justify="center" alignItems="center">
-                                <Grid item container spacing={0} justify="center" alignItems="center" xs={12} sm={3} style={{padding: '5px 30px'}}>
+                                {/* <Grid item container spacing={0} justify="center" alignItems="center" xs={12} sm={3} style={{padding: '5px 30px'}}>
                                   <Button fullWidth style={{textTransform: 'none'}} color="primary" variant="contained">Yes</Button>
                                 </Grid>
                                 <Grid item container spacing={0} justify="center" alignItems="center" xs={12} sm={3} style={{padding: '5px 30px'}}>
@@ -246,6 +386,9 @@ const CalenAppBar = (props) => {
                                 </Grid>
                                 <Grid item container spacing={0} justify="center" alignItems="center" xs={12} sm={3} style={{padding: '5px 30px'}}>
                                   <Button fullWidth style={{textTransform: 'none'}} variant="outlined" onClick={closeWarning}>Cancel</Button>
+                                </Grid> */}
+                                <Grid item container spacing={0} justify="center" alignItems="center" xs={12} sm={3} style={{padding: '5px 30px'}}>
+                                  <Button fullWidth style={{textTransform: 'none'}} variant="outlined" onClick={closeWarning}>Ok</Button>
                                 </Grid>
                               </Grid>
                             </DialogContent>
@@ -291,14 +434,15 @@ const CalenAppBar = (props) => {
                           <RightIcon />
                         </IconButton>
                       </Grid>
-                      <IconButton
+                      {/* <IconButton
                         edge="end"
                         color="inherit"
                         aria-label="menu"
-                        onClick={(e) => saveChanges()}
+                        onClick={(e) => exportResult()}
+                        disabled={currentMenuElement === 3}
                       >
-                        <SaveIcon />
-                      </IconButton>
+                        <PdfIcon />
+                      </IconButton> */}
                     </Toolbar>
                   </AppBar>
                   <Collapse in={openMenu} timeout="auto" unmountOnExit>
@@ -359,7 +503,7 @@ const CalenAppBar = (props) => {
                               setOpenMenu(!openMenu)
                             }}>{menuElements[3]}</Button>
                         </Grid>
-                        <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
+                        {/* <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
                           <Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
                               if(edited){
                                 setOpenWarning(true);
@@ -379,7 +523,7 @@ const CalenAppBar = (props) => {
                         </Grid>
                         <Grid className={classes.frontdrop} item xs={12} sm={12/menuElements.length}>
                           <Typography> </Typography>
-                        </Grid>
+                        </Grid> */}
                       </Grid>                
                     </Grid>                
                   </Collapse>

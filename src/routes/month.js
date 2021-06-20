@@ -26,6 +26,8 @@ import link from '../utils/restful'
 import { Divider, Grid, TextField, Button, List, ListItem, Paper } from '@material-ui/core';
 
 const Month = (props) => {
+	const { t, i18n } = useTranslation();
+
   const history = useHistory();
   
   const {loggedin, setLoggedIn, setUserId, setLoginToken} = useContext(AuthContext);
@@ -47,6 +49,11 @@ const Month = (props) => {
   const toHome = () => {
     history.push('/');
   }
+
+	const toDay = (day) => {
+		changeDate(day, month, year)
+		history.push('/day/' + day + '/' + month + '/' + year);
+	}
 
   const addItem = () => {
     // setPassFoucs(true);
@@ -122,7 +129,12 @@ const Month = (props) => {
 
   useEffect(() => {
 
-    console.log('testChange')
+    // console.log('testChange')
+
+    if(!loggedin){
+      toHome();
+      return;
+    }
 
     // makeChange(false)
 
@@ -191,9 +203,19 @@ const Month = (props) => {
     // }
 
     var items = {
-      '05': 100,
-      '15': 50,
-      '25': 12,
+      // '05': 100,
+      // '15': 50,
+      // '25': 12,
+    }
+
+    if(data !== null){
+      if(data[year] !== undefined){
+        if(data[year][month.toString().padStart(2, "0")] !== undefined){
+            for(var day of Object.keys(data[year][month.toString().padStart(2, "0")])){
+              items[day] = data[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")].total;
+            }
+        }
+      }
     }
 
     setItems(items)
@@ -201,9 +223,9 @@ const Month = (props) => {
     var t = 0;
 
     for(var key of Object.keys(items))
-      t += items[key];
+      t += parseFloat(items[key]) * 100;
 
-    setTotal(t)
+    setTotal(t / 100)
 
   }, [props.match.params])
 
@@ -220,7 +242,7 @@ const Month = (props) => {
       var offseted = Array.apply(null, Array(DateUtils.daysInMonth(month,year) + offset));
 
       showItems = <Grid item xs={12}>
-                    <Paper elevation={0} style={darkMode ? {maxHeight: '70vh', overflow: 'auto', padding: '5px 5px', backgroundColor: '#303030'} : {maxHeight: '70vh', overflow: 'auto', padding: '5px 5px'}}>
+                    <Paper elevation={0} style={darkMode ? {maxHeight: '65vh', overflow: 'auto', padding: '5px 5px', backgroundColor: '#303030'} : {maxHeight: '65vh', overflow: 'auto', padding: '5px 5px'}}>
                       <div style={{display: 'grid', gridTemplateColumns: 'auto auto auto auto auto auto auto', gridGap: '2px'}}>
                         {DateUtils.weekdays.map((val, index) => (
                           <Grid container spacing={0} justify="center" alignItems="center" key={val} style={{marginBottom: '5px'}}>
@@ -263,10 +285,11 @@ const Month = (props) => {
                                           </Grid>
                                           <Grid item xs={6} style={{textAlign: 'end'}}>
                                             <IconButton
-                                              style={{color: `${appBarTitleColor[pickedStyle]}`}}
+                                              style={darkMode ? {color: '#fff'} : {color: `${appBarTitleColor[pickedStyle]}`}}
                                               size="small"
                                               onClick={() => {
                                                 // removeItem(index);
+                                                toDay(index + 1 - offset)
                                               }}
                                               >
                                                 <GotoIcon/>
@@ -280,7 +303,7 @@ const Month = (props) => {
                                             autoFocus={passfoucs}
                                             variant='outlined'
                                             margin='dense'
-                                            label='total'
+                                            label={t('others.total')}
                                             inputProps={{ style: {textAlign: 'end'} }}
                                             value={items[(index + 1 - offset).toString().padStart(2, "0")] === undefined ? 0 : items[(index + 1 - offset).toString().padStart(2, "0")]}
                                             onChange={(e) => {repriceItem(index, e.target.value)}}
@@ -303,7 +326,7 @@ const Month = (props) => {
     }
     else{
       showItems = <Grid item xs={12}>
-                    <Paper style={{maxHeight: '70vh', overflow: 'auto'}}>
+                    <Paper style={{maxHeight: '65vh', overflow: 'auto'}}>
                         <List style={{padding: '5px 8px'}}>
                           {Array.apply(null, Array(DateUtils.daysInMonth(month,year))).map((val, index) => 
                             <div key={index}>
@@ -318,6 +341,7 @@ const Month = (props) => {
                                 repriceItem={repriceItem}
                                 enableEdit={enableEdit}
                                 passfoucs={passfoucs}
+                                toDay={toDay}
                                 containerStyle={
                                   DateUtils.getWeekDay(index + 1, month, year) === 0 ?
                                     (darkMode ? {backgroundColor: 'rgba(244, 67, 54, 0.7)'} : {backgroundColor: 'rgba(244, 67, 54, 0.2)'})
@@ -338,7 +362,7 @@ const Month = (props) => {
                     </Grid>
                     
       // showItems = <Grid item xs={12}>
-      //               <Paper style={{maxHeight: '70vh', overflow: 'auto'}}>
+      //               <Paper style={{maxHeight: '65vh', overflow: 'auto'}}>
       //                   <List style={{padding: '5px 8px'}}>
       //                     {Array.apply(null, Array(DateUtils.daysInMonth(month,year))).map((val, index) => 
       //                       <div key={index}>

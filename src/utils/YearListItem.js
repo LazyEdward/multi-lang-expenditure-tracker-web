@@ -7,7 +7,11 @@ import IconButton from '@material-ui/core/IconButton';
 import RemoveIcon from '@material-ui/icons/DeleteForever';
 import GotoIcon from '@material-ui/icons/Visibility';
 
-const YearListItem = ({index, month, items, darkMode, appBarTitleColor, pickedStyle, repriceItem, enableEdit, passfoucs}) => {
+import { useTranslation } from 'react-i18next';
+
+const YearListItem = ({index, month, items, darkMode, appBarTitleColor, pickedStyle, repriceItem, enableEdit, passfoucs, toMonth}) => {
+
+	const { t, i18n } = useTranslation();
 
 	return (
 		<ListItem style={{padding: '3px'}}>
@@ -38,7 +42,7 @@ const YearListItem = ({index, month, items, darkMode, appBarTitleColor, pickedSt
 					autoFocus={passfoucs}
 					variant='outlined'
 					margin='dense'
-					label='total'
+					label={t('others.total')}
 					inputProps={{ style: {textAlign: 'end'} }}
 					value={items[(index + 1).toString().padStart(2, "0")] === undefined ? 0 : items[(index + 1).toString().padStart(2, "0")]}
 					onChange={(e) => {repriceItem(index, e.target.value)}}
@@ -54,6 +58,7 @@ const YearListItem = ({index, month, items, darkMode, appBarTitleColor, pickedSt
 					style={darkMode ? {color: '#fff'} : {color: `${appBarTitleColor[pickedStyle]}`}}
 					onClick={() => {
 					// removeItem(index);
+						toMonth(index + 1);
 					}}
 					>
 					<GotoIcon/>
@@ -75,6 +80,7 @@ YearListItem.protoTypes = {
 	repriceItem: PropTypes.func.isRequired,
 	enableEdit: PropTypes.bool.isRequired,
 	passfoucs: PropTypes.bool.isRequired,
+	toMonth: PropTypes.func.isRequired
 }
 
 export default YearListItem;

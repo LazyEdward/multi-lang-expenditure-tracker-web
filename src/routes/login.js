@@ -63,14 +63,14 @@ function Login(props) {
 	
 	useEffect(() => {
 
-		console.log(Object.keys(i18n.store.data))
+		// console.log(Object.keys(i18n.store.data))
 
-		if(loggedin){
-			console.log(changeDate);
+		// if(loggedin){
+		// 	console.log(changeDate);
 			// changeDate(new Date().getDate(), new Date().getMonth() + 1, new Date().getFullYear())
-
+			setLoggedIn(true)
 			toDay();
-		}
+		// }
 	}, [])
 
 	const register = () => {
@@ -110,7 +110,16 @@ function Login(props) {
 	const login = () => {
 
 		if(email.trim().length < 1 || password.trim().length < 1){
-			setErrorLogin('Email/password cannot be empty')
+			// local login
+			changeDate(day, month, year);
+					
+			setUserId('');
+			// setLoginToken(jsonData.token);
+			setLoggedIn(true)
+			// props.login();
+			toDay();
+
+			// setErrorLogin('Email/password cannot be empty')
 			return;
 		}
 

@@ -8,6 +8,8 @@ import {useHistory} from 'react-router-dom';
 
 import { useTranslation } from 'react-i18next';
 
+import deepComparison from '../utils/deepComparison.js'
+
 import OuterLayout from '../utils/OuterLayout.js'
 import DayListItem from '../utils/DayListItem.js'
 
@@ -19,12 +21,15 @@ import { Divider, Grid, TextField, Button, List, ListItem, Paper } from '@materi
 const Day = (props) => {
   const history = useHistory();
 
+	const { t, i18n } = useTranslation();
+
   const {loggedin, setLoggedIn, setUserId, setLoginToken} = useContext(AuthContext);
   const {day, month, year, changeDate} = useContext(DateContext);
   const {lastUpdate, edited, data, data_copy, setLastUpdate, makeChange, setData, setDataCopy} = useContext(DataStoreContext);
   const {colorSet, appBarTitleColor, darkMode, pickedStyle, muiTheme} = useContext(StyleContext);
 
   const [total, setTotal] = useState(0)
+  const [itemsInit, setItemsInit] = useState(null);
   const [items, setItems] = useState(null);
 
   const [passfoucs, setPassFoucs] = useState(false);
@@ -36,24 +41,73 @@ const Day = (props) => {
     history.push('/');
   }
 
+  
+  const saveChange = () => {
+    if(edited){
+
+      for(var i = 0; i < items.length; i++){
+        if(items[i].price === '')
+          items[i].price = '0'
+      }
+
+      const newData = {...data};
+
+      if(items === null || items.length < 1){
+
+        if(newData !== null){
+          if(newData[year] !== undefined){
+            if(newData[year][month.toString().padStart(2, "0")] !== undefined){
+              if(newData[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")] !== undefined)
+                delete newData[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")];
+            }
+          }
+        }
+
+      }
+      else{
+        if(newData === null)
+          newData = {}
+        
+        if(newData[year] === undefined)
+          newData[year] = {}
+        
+        if(newData[year][month.toString().padStart(2, "0")] === undefined)
+          newData[year][month.toString().padStart(2, "0")] = {}
+        
+        if(newData[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")] === undefined)
+          newData[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")] = {}
+
+        newData[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")].items = items;
+        newData[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")].total = total;
+      }
+
+      setData(newData);
+      setItemsInit({...items});
+      makeChange(false)
+    }
+  }
+
   const addItem = () => {
     setPassFoucs(true);
 
-    makeChange(true)
+    // makeChange(true)
 
     const newItems = [...items];
 
     if(newItems.length > 0 && newItems[newItems.length - 1].price === '')
       newItems[newItems.length - 1].price = '0';
 
-    newItems.push({ name: 'New Item' + (newItems.length + 1), price: '' });
+    newItems.push({ name: t('daily.new') + (newItems.length + 1), price: '' });
+
+    console.log(deepComparison(itemsInit, newItems));
+    makeChange(!deepComparison(itemsInit, newItems))
 
     setItems(newItems);
   }
 
   const removeItem = (index) => {
 
-    makeChange(true)
+    // makeChange(true)
 
     const newItems = [...items];
 
@@ -62,13 +116,16 @@ const Day = (props) => {
 
     newItems.splice(index, 1);
 
+    console.log(deepComparison(itemsInit, newItems));
+    makeChange(!deepComparison(itemsInit, newItems))
+
     setItems(newItems);
     setTotal(newItems.map(val => parseFloat(val.price) * 100).reduce((a, b) => {return a + b} , 0) / 100)
   }
 
   const renameItem = (index, name) => {
     
-    makeChange(true)
+    // makeChange(true)
 
     console.log(name)
 
@@ -80,12 +137,15 @@ const Day = (props) => {
 
     newItems[index].name = name;
 
+    console.log(deepComparison(itemsInit, newItems));
+    makeChange(!deepComparison(itemsInit, newItems))
+
     setItems(newItems);
   }
 
   const repriceItem = (index, price) => {
 
-    makeChange(true)
+    // makeChange(true)
 
     if(isNaN(price)){
       price = 0
@@ -103,6 +163,10 @@ const Day = (props) => {
 
     // newItems[index].price = Number(price);
     newItems[index].price = price === '' ? '0' : price;
+
+    console.log(deepComparison(itemsInit, newItems));
+    makeChange(!deepComparison(itemsInit, newItems))
+
     setTotal(newItems.map(val => parseFloat(val.price) * 100).reduce((a, b) => {return a + b} , 0) / 100)
     setItems(newItems);
     // setTotal(total + Number(price))
@@ -110,7 +174,12 @@ const Day = (props) => {
 
   useEffect(() => {
 
-    console.log('testChange')
+    // console.log('testChange')
+
+    if(!loggedin){
+      toHome();
+      return;
+    }
 
     // makeChange(false)
 
@@ -181,18 +250,28 @@ const Day = (props) => {
     // test data
 
     var items = [
-      { name: 'test1', price: 50 },
-      { name: 'test2', price: 20 },
-      { name: 'test21', price: 40 },
-      { name: 'test25', price: 22 },
-      { name: 'test12', price: 27 },
-      { name: 'test112', price: 20 },
-      { name: 'test n', price: 15 }
+      // { name: 'test1', price: 50 },
+      // { name: 'test2', price: 20 },
+      // { name: 'test21', price: 40 },
+      // { name: 'test25', price: 22 },
+      // { name: 'test12', price: 27 },
+      // { name: 'test112', price: 20 },
+      // { name: 'test n', price: 15 }
     ]
+
+    if(data !== null){
+      if(data[year] !== undefined){
+        if(data[year][month.toString().padStart(2, "0")] !== undefined){
+          if(data[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")] !== undefined)
+            items = data[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")].items;
+        }
+      }
+    }
 
     setPassFoucs(false);
 
     setItems(items);
+    setItemsInit({...items});
     setTotal(items.map(val => val.price * 100).reduce((a, b) => {return a + b} , 0) / 100)
 
   }, [props.match.params])
@@ -323,6 +402,8 @@ const Day = (props) => {
       total={total}
       showItems={showItems}
       addItem={addItem}
+      edited={edited}
+      saveChange={saveChange}
       menubgImgStyle={menubgImgStyle}
     />
   );

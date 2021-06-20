@@ -27,6 +27,8 @@ import link from '../utils/restful'
 import { Divider, Grid, TextField, Button, List, ListItem, Paper } from '@material-ui/core';
 
 const Setting = (props) => {
+  const { t, i18n } = useTranslation();
+
   const history = useHistory();
 
   const {loggedin, setLoggedIn, setUserId, setLoginToken} = useContext(AuthContext);
@@ -74,6 +76,11 @@ const Setting = (props) => {
 
   useEffect(() => {
 
+    if(!loggedin){
+		toHome();
+  
+	  }
+
   }, [])
 
 	return (
@@ -83,12 +90,12 @@ const Setting = (props) => {
 			<div>
 				<Grid container spacing={0} item justify="center" alignItems="center">
 					<Grid item xs={12}>          
-					<Paper elevation={0} style={darkMode ? {maxHeight: '70vh', overflow: 'auto', backgroundColor: '#303030'} : {maxHeight: '70vh', overflow: 'auto'}}>
+					<Paper elevation={0} style={darkMode ? {maxHeight: '65vh', overflow: 'auto', backgroundColor: '#303030'} : {maxHeight: '65vh', overflow: 'auto'}}>
 							<List>
 								<ListItem onClick={changeDarkMode}>
 									<Grid container spacing={0} justify="flex-start" alignItems="center">
 										<Grid item xs={10} style={{paddingLeft: '15px'}}>
-											<Typography>Dark Mode</Typography>
+											<Typography>{t('others.dark')}</Typography>
 										</Grid>
 										<Grid item xs={2} style={{textAlign: 'end'}}>
 											<Switch
@@ -103,7 +110,7 @@ const Setting = (props) => {
 								<ListItem onClick={clickOpenColors}>
 									<Grid container spacing={0} justify="flex-start" alignItems="center">
 										<Grid item xs={10} style={{paddingLeft: '15px'}}>
-											<Typography>Color Theme</Typography>
+											<Typography>{t('others.color')}</Typography>
 										</Grid>
 										<Grid item xs={2} style={{textAlign: 'end'}}>
 										<IconButton style={{color: `${appBarTitleColor[pickedStyle]}`}}>

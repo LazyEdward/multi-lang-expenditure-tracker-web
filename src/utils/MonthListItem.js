@@ -7,8 +7,12 @@ import IconButton from '@material-ui/core/IconButton';
 import RemoveIcon from '@material-ui/icons/DeleteForever';
 import GotoIcon from '@material-ui/icons/Visibility';
 
-const MonthListItem = ({index, weekday, items, darkMode, appBarTitleColor, pickedStyle, repriceItem, enableEdit, passfoucs, containerStyle, textStyle}) => {
+import { useTranslation } from 'react-i18next';
 
+const MonthListItem = ({index, weekday, items, darkMode, appBarTitleColor, pickedStyle, repriceItem, enableEdit, passfoucs, toDay, containerStyle, textStyle}) => {
+
+	const { t, i18n } = useTranslation();
+	
 	return (
 		<ListItem style={{padding: '3px'}}>
 			<Grid container spacing={0} justify="flex-start" alignItems="center"
@@ -71,7 +75,7 @@ const MonthListItem = ({index, weekday, items, darkMode, appBarTitleColor, picke
 						autoFocus={passfoucs}
 						variant='outlined'
 						margin='dense'
-						label='total'
+						label={t('others.total')}
 						inputProps={{ style: {textAlign: 'end'} }}
 						value={items[(index + 1).toString().padStart(2, "0")] === undefined ? 0 : items[(index + 1).toString().padStart(2, "0")]}
 						onChange={(e) => {repriceItem(index, e.target.value)}}
@@ -87,6 +91,7 @@ const MonthListItem = ({index, weekday, items, darkMode, appBarTitleColor, picke
 						style={darkMode ? {color: '#fff'} : {color: `${appBarTitleColor[pickedStyle]}`}}
 						onClick={() => {
 							// removeItem(index);
+							toDay(index + 1)
 						}}
 					>
 						<GotoIcon/>
@@ -108,6 +113,7 @@ MonthListItem.protoTypes = {
 	repriceItem: PropTypes.func.isRequired,
 	enableEdit: PropTypes.bool.isRequired,
 	passfoucs: PropTypes.bool.isRequired,
+	toDay: PropTypes.func.isRequired,
 	containerStyle: PropTypes.string.isRequired,
 	textStyle: PropTypes.string.isRequired
 }

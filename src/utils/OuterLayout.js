@@ -6,7 +6,11 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import { Divider, Grid, TextField, Button } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 
-const OuterLayout = ({muiTheme, viewVariant, total, showItems, addItem, menubgImgStyle}) => {
+import { useTranslation } from 'react-i18next';
+
+const OuterLayout = ({muiTheme, viewVariant, total, showItems, addItem, edited, saveChange, menubgImgStyle}) => {
+
+	const { t, i18n } = useTranslation();
 
 	return (
 		<ThemeProvider theme={muiTheme}>
@@ -14,7 +18,7 @@ const OuterLayout = ({muiTheme, viewVariant, total, showItems, addItem, menubgIm
 			<div style={{paddingLeft: '10px', paddingRight: '10px'}}>
 				<Grid item container spacing={0} justify="flex-end" alignItems="center" style={{paddingTop: '4px', paddingBottom: '4px', margin: '5px'}}>
 					<Grid item xs={6} sm={2} style={{textAlign: 'center'}}>
-					<Typography>{viewVariant} total: </Typography>
+					<Typography>{t(`${viewVariant.toLowerCase()}.total`)}</Typography>
 					</Grid>
 					<Grid item xs={6} sm={3} style={{paddingRight: '2vw'}}>
 					<TextField
@@ -48,11 +52,24 @@ const OuterLayout = ({muiTheme, viewVariant, total, showItems, addItem, menubgIm
 							<div style={{backgroundImage: `${menubgImgStyle}`, paddingTop: '4px', paddingBottom: '4px'}}>
 							<Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" onClick={() => {
 								addItem()
-							}}>Add item</Button>
+							}}>{t('daily.add')}</Button>
 							</div>
 						</Grid>     
-					}     
+					}         
 				</Grid>     
+				{(saveChange === null || saveChange === undefined) ?
+					null
+					:
+					<Grid container spacing={0} item justify="center" alignItems="center">
+						<Grid item xs={12} sm={6} style={{paddingTop: '10px'}}>          
+							<div style={edited ? {backgroundImage: `${menubgImgStyle}`, paddingTop: '4px', paddingBottom: '4px'} : {backgroundColor: '#AAAAAA', paddingTop: '4px', paddingBottom: '4px'}}>
+							<Button style={{color: 'white', textTransform: 'none'}} fullWidth align="center" disabled={!edited} onClick={() => {
+								saveChange()
+							}}>{t('daily.save')}</Button>
+							</div>
+						</Grid>     
+					</Grid>
+				} 
 			</div>
 			</ThemeProvider>
 	);
@@ -65,6 +82,8 @@ OuterLayout.protoTypes = {
 	total: PropTypes.number.isRequired,
 	showItems: PropTypes.element.isRequired,
 	addItem: PropTypes.func,
+	edited: PropTypes.bool,
+	saveChange: PropTypes.func,
 	menubgImgStyle: PropTypes.string,
 }
 

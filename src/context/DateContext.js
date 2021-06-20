@@ -13,7 +13,7 @@ const DateProvider = (props) => {
 		setMonth(month)
 		setYear(year)
 		console.log(day+'/'+month+'/'+year)
-	  }
+	}
 
 	return (
 		// <AuthContext.Provider value={{loggedin, user_id, loginToken, setLoggedIn, setUserId, setLoginToken}}>

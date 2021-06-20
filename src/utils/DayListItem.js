@@ -2,10 +2,14 @@ import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Divider, Grid, TextField, Button, List, ListItem, Paper } from '@material-ui/core';
 
+import { useTranslation } from 'react-i18next';
+
 import IconButton from '@material-ui/core/IconButton';
 import RemoveIcon from '@material-ui/icons/DeleteForever';
 
 const DayListItem = ({index, val, items, darkMode, appBarTitleColor, pickedStyle, renameItem, repriceItem, addItem, removeItem, passfoucs}) => {
+
+	const { t, i18n } = useTranslation();
 
 	return (
 		<ListItem style={{padding: '3px'}}>
@@ -16,7 +20,7 @@ const DayListItem = ({index, val, items, darkMode, appBarTitleColor, pickedStyle
 					color={pickedStyle === 0 ? 'primary' : 'secondary'}
 					variant='outlined'
 					margin='dense'
-					label='item'
+					label={t('daily.item')}
 					value={val.name}
 					onChange={(e) => {renameItem(index, e.target.value)}}
 					// onKeyPress={(e) => {
@@ -33,7 +37,7 @@ const DayListItem = ({index, val, items, darkMode, appBarTitleColor, pickedStyle
 					autoFocus={passfoucs}
 					variant='outlined'
 					margin='dense'
-					label='price'
+					label={t('daily.price')}
 					inputProps={{ style: {textAlign: 'end'} }}
 					value={val.price}
 					onChange={(e) => {repriceItem(index, e.target.value)}}

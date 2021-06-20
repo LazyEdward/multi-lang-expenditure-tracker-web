@@ -26,6 +26,8 @@ import link from '../utils/restful'
 import { Divider, Grid, TextField, Button, List, ListItem, Paper } from '@material-ui/core';
 
 const Year = (props) => {
+	const { t, i18n } = useTranslation();
+
   const history = useHistory();
 
   const {loggedin, setLoggedIn, setUserId, setLoginToken} = useContext(AuthContext);
@@ -47,6 +49,11 @@ const Year = (props) => {
   const toHome = () => {
     history.push('/');
   }
+
+  const toMonth = (month) => {
+		changeDate(-1, month, year)
+		history.push('/month/'+ month +'/'+ year);
+	}
 
   const addItem = () => {
     // setPassFoucs(true);
@@ -122,7 +129,12 @@ const Year = (props) => {
 
   useEffect(() => {
 
-    console.log('testChange')
+    // console.log('testChange')
+
+    if(!loggedin){
+      toHome();
+
+    }
 
     // makeChange(false)
 
@@ -191,19 +203,38 @@ const Year = (props) => {
     // }
 
     var items = {
-      '01': 100.4,
-      '07': 500.5,
-      '11': 1240,
+      // '01': 100.4,
+      // '07': 500.5,
+      // '11': 1240,
     }
+
+    if(data !== null){
+      if(data[year] !== undefined){
+        if(data[year] !== undefined){
+            for(var month of Object.keys(data[year])){
+
+              items[month.padStart(2, "0")] = 0;
+
+              for(var day of Object.keys(data[year][month])){
+                items[month.padStart(2, "0")] += parseFloat(data[year][month][day].total) * 100;
+              }
+
+              items[month.padStart(2, "0")] /= 100;
+            }
+        }
+      }
+    }
+
+    console.log(items)
 
     setItems(items)
 
     var t = 0;
 
     for(var key of Object.keys(items))
-      t += items[key];
+      t += parseFloat(items[key]) * 100;
 
-    setTotal(t)
+    setTotal(t/ 100)
 
   }, [props.match.params])
 
@@ -217,7 +248,7 @@ const Year = (props) => {
     if(smUp){
 
       showItems = <Grid item xs={12}>
-                    <Paper elevation={0} style={darkMode ? {maxHeight: '70vh', overflow: 'auto', padding: '5px 5px', backgroundColor: '#303030'} : {maxHeight: '70vh', overflow: 'auto', padding: '5px 5px'}}>
+                    <Paper elevation={0} style={darkMode ? {maxHeight: '65vh', overflow: 'auto', padding: '5px 5px', backgroundColor: '#303030'} : {maxHeight: '65vh', overflow: 'auto', padding: '5px 5px'}}>
                       <div style={{display: 'grid', gridTemplateColumns: 'auto auto auto auto', gridGap: '2px'}}>
                         {Array.apply(null, Array(12)).map((val, index) => 
                               <Grid container spacing={0} direction="column" justify="center" alignItems="center" key={index}>
@@ -231,10 +262,11 @@ const Year = (props) => {
                                         </Grid>
                                         <Grid item xs={6} style={{textAlign: 'end'}}>
                                           <IconButton
-                                            style={{color: `${appBarTitleColor[pickedStyle]}`}}
+                                            style={darkMode ? {color: '#fff'} : {color: `${appBarTitleColor[pickedStyle]}`}}
                                             size="small"
                                             onClick={() => {
                                               // removeItem(index);
+                                              toMonth(index + 1)
                                             }}
                                             >
                                               <GotoIcon/>
@@ -248,7 +280,7 @@ const Year = (props) => {
                                           autoFocus={passfoucs}
                                           variant='outlined'
                                           margin='dense'
-                                          label='total'
+                                          label={t('others.total')}
                                           inputProps={{ style: {textAlign: 'end'} }}
                                           value={items[(index + 1).toString().padStart(2, "0")] === undefined ? 0 : items[(index + 1).toString().padStart(2, "0")]}
                                           onChange={(e) => {repriceItem(index, e.target.value)}}
@@ -269,7 +301,7 @@ const Year = (props) => {
     }
     else{
       showItems = <Grid item xs={12}>
-                    <Paper style={{maxHeight: '70vh', overflow: 'auto'}}>
+                    <Paper style={{maxHeight: '65vh', overflow: 'auto'}}>
                         <List style={{padding: '5px 8px'}}>
                           {Array.apply(null, Array(12)).map((val, index) => 
                             <div key={index}>
@@ -284,6 +316,7 @@ const Year = (props) => {
                                 repriceItem={repriceItem}
                                 enableEdit={enableEdit}
                                 passfoucs={passfoucs}
+                                toMonth={toMonth}
                               />
                             </div>
                           )}
@@ -292,7 +325,7 @@ const Year = (props) => {
                     </Grid>
                     
       // showItems = <Grid item xs={12}>
-      //               <Paper style={{maxHeight: '70vh', overflow: 'auto'}}>
+      //               <Paper style={{maxHeight: '65vh', overflow: 'auto'}}>
       //                   <List style={{padding: '5px 8px'}}>
       //                     {Array.apply(null, Array(12)).map((val, index) => 
       //                       <div key={index}>
