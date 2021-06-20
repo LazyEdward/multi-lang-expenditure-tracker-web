@@ -1,0 +1,20 @@
+{
+  "files": {
+    "main.css": "/multi-lang-expenditure-tracker-web/static/css/main.969b5430.chunk.css",
+    "main.js": "/multi-lang-expenditure-tracker-web/static/js/main.68bf1065.chunk.js",
+    "main.js.map": "/multi-lang-expenditure-tracker-web/static/js/main.68bf1065.chunk.js.map",
+    "runtime-main.js": "/multi-lang-expenditure-tracker-web/static/js/runtime-main.31ec6924.js",
+    "runtime-main.js.map": "/multi-lang-expenditure-tracker-web/static/js/runtime-main.31ec6924.js.map",
+    "static/js/2.b97d29cb.chunk.js": "/multi-lang-expenditure-tracker-web/static/js/2.b97d29cb.chunk.js",
+    "static/js/2.b97d29cb.chunk.js.map": "/multi-lang-expenditure-tracker-web/static/js/2.b97d29cb.chunk.js.map",
+    "index.html": "/multi-lang-expenditure-tracker-web/index.html",
+    "static/css/main.969b5430.chunk.css.map": "/multi-lang-expenditure-tracker-web/static/css/main.969b5430.chunk.css.map",
+    "static/js/2.b97d29cb.chunk.js.LICENSE.txt": "/multi-lang-expenditure-tracker-web/static/js/2.b97d29cb.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.31ec6924.js",
+    "static/js/2.b97d29cb.chunk.js",
+    "static/css/main.969b5430.chunk.css",
+    "static/js/main.68bf1065.chunk.js"
+  ]
+}
