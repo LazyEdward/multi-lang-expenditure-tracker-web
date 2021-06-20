@@ -43,7 +43,7 @@ function App() {
         <DateProvider>
           <DataStoreProvider>
             <StyleProvider>
-              <BrowserRouter history={history}>
+              <BrowserRouter history={history} basename={process.env.PUBLIC_URL}>
                 {/* {showLogin} */}
                 {/* {showCalenAppBar} */}
                 <CalenAppBar/>
