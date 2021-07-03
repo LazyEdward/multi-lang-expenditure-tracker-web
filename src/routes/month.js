@@ -22,7 +22,7 @@ import MonthListItem from '../utils/MonthListItem.js'
 
 // https://stackoverflow.com/questions/63150232/react-js-material-ui-how-to-format-textfield-as-an-amount
 
-import link from '../utils/restful'
+// import link from '../utils/restful'
 import { Divider, Grid, TextField, Button, List, ListItem, Paper } from '@material-ui/core';
 
 const Month = (props) => {
@@ -227,7 +227,7 @@ const Month = (props) => {
 
     setTotal(t / 100)
 
-  }, [props.match.params])
+  }, [props.match.params, data])
 
 
   var showItems;
@@ -242,7 +242,7 @@ const Month = (props) => {
       var offseted = Array.apply(null, Array(DateUtils.daysInMonth(month,year) + offset));
 
       showItems = <Grid item xs={12}>
-                    <Paper elevation={0} style={darkMode ? {maxHeight: '65vh', overflow: 'auto', padding: '5px 5px', backgroundColor: '#303030'} : {maxHeight: '65vh', overflow: 'auto', padding: '5px 5px'}}>
+                    <Paper elevation={0} style={darkMode ? {maxHeight: '60vh', overflow: 'auto', padding: '5px 5px', backgroundColor: '#303030'} : {maxHeight: '60vh', overflow: 'auto', padding: '5px 5px'}}>
                       <div style={{display: 'grid', gridTemplateColumns: 'auto auto auto auto auto auto auto', gridGap: '2px'}}>
                         {DateUtils.weekdays.map((val, index) => (
                           <Grid container spacing={0} justify="center" alignItems="center" key={val} style={{marginBottom: '5px'}}>
@@ -326,7 +326,7 @@ const Month = (props) => {
     }
     else{
       showItems = <Grid item xs={12}>
-                    <Paper style={{maxHeight: '65vh', overflow: 'auto'}}>
+                    <Paper style={{maxHeight: '60vh', overflow: 'auto'}}>
                         <List style={{padding: '5px 8px'}}>
                           {Array.apply(null, Array(DateUtils.daysInMonth(month,year))).map((val, index) => 
                             <div key={index}>
@@ -362,7 +362,7 @@ const Month = (props) => {
                     </Grid>
                     
       // showItems = <Grid item xs={12}>
-      //               <Paper style={{maxHeight: '65vh', overflow: 'auto'}}>
+      //               <Paper style={{maxHeight: '60vh', overflow: 'auto'}}>
       //                   <List style={{padding: '5px 8px'}}>
       //                     {Array.apply(null, Array(DateUtils.daysInMonth(month,year))).map((val, index) => 
       //                       <div key={index}>

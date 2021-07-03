@@ -21,7 +21,7 @@ import Fade from '@material-ui/core/Fade';
 
 import { useTranslation } from 'react-i18next';
 
-import link from '../utils/restful'
+// import link from '../utils/restful'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -85,26 +85,26 @@ function Login(props) {
 			password: password
 		}
 
-		Promise.resolve(fetch(link + 'api/register',{
-			method: 'POST',
-			body: JSON.stringify(data),
-			headers: {
-				'Content-Type' : 'application/json'
-			}
-		})).then((res) => {
-			if(res.ok){
-				setIsRegister(false);
-			}
-			else{
-				console.log('404')
-				setErrorLogin('Email is already registered. Please try another one')
-				return;
-			}
-		}).catch((err) => {
-			console.log(err)
-			setErrorLogin('Server error. Please try again later')
-			return;
-		})
+		// Promise.resolve(fetch(link + 'api/register',{
+		// 	method: 'POST',
+		// 	body: JSON.stringify(data),
+		// 	headers: {
+		// 		'Content-Type' : 'application/json'
+		// 	}
+		// })).then((res) => {
+		// 	if(res.ok){
+		// 		setIsRegister(false);
+		// 	}
+		// 	else{
+		// 		console.log('404')
+		// 		setErrorLogin('Email is already registered. Please try another one')
+		// 		return;
+		// 	}
+		// }).catch((err) => {
+		// 	console.log(err)
+		// 	setErrorLogin('Server error. Please try again later')
+		// 	return;
+		// })
 	}
 
 	const login = () => {
@@ -128,38 +128,38 @@ function Login(props) {
 			password: password
 		}
 
-		Promise.resolve(fetch(link + 'api/login',{
-			method: 'POST',
-			body: JSON.stringify(data),
-			headers: {
-				'Content-Type' : 'application/json'
-			}
-		})).then((res) => {
-			if(res.ok){
-				Promise.resolve(res.json()).then((jsonData) => {
-					changeDate(day, month, year);
+		// Promise.resolve(fetch(link + 'api/login',{
+		// 	method: 'POST',
+		// 	body: JSON.stringify(data),
+		// 	headers: {
+		// 		'Content-Type' : 'application/json'
+		// 	}
+		// })).then((res) => {
+		// 	if(res.ok){
+		// 		Promise.resolve(res.json()).then((jsonData) => {
+		// 			changeDate(day, month, year);
 					
-					setUserId(jsonData.user_id);
-					setLoginToken(jsonData.token);
-					setLoggedIn(true)
-					// props.login();
-					toDay();
-				}).catch((err) => {
-					console.log(err)
-					setErrorLogin('Server error. Please try again later')
-					return;
-				})
-			}
-			else{
-				console.log('404')
-				setErrorLogin('Email/password is invalid')
-				return;
-			}
-		}).catch((err) => {
-			console.log(err)
-			setErrorLogin('Server error. Please try again later')
-			return;
-		})
+		// 			setUserId(jsonData.user_id);
+		// 			setLoginToken(jsonData.token);
+		// 			setLoggedIn(true)
+		// 			// props.login();
+		// 			toDay();
+		// 		}).catch((err) => {
+		// 			console.log(err)
+		// 			setErrorLogin('Server error. Please try again later')
+		// 			return;
+		// 		})
+		// 	}
+		// 	else{
+		// 		console.log('404')
+		// 		setErrorLogin('Email/password is invalid')
+		// 		return;
+		// 	}
+		// }).catch((err) => {
+		// 	console.log(err)
+		// 	setErrorLogin('Server error. Please try again later')
+		// 	return;
+		// })
 
 		// props.changeDate(day, month, year)
 		// props.login();

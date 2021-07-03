@@ -15,7 +15,7 @@ import DayListItem from '../utils/DayListItem.js'
 
 // https://stackoverflow.com/questions/63150232/react-js-material-ui-how-to-format-textfield-as-an-amount
 
-import link from '../utils/restful'
+// import link from '../utils/restful'
 import { Divider, Grid, TextField, Button, List, ListItem, Paper } from '@material-ui/core';
 
 const Day = (props) => {
@@ -147,13 +147,11 @@ const Day = (props) => {
 
     // makeChange(true)
 
-    if(isNaN(price)){
-      price = 0
-      return;
-    }
+    if(price !== '' && !/^\d+(?:\.\d{0,2})?$/.test(price))
+      return
 
-    if(!/^\d+(?:\.\d{0,2})?$/.test(price))
-      return;
+    if(isNaN(price))
+      price = 0
 
     const newItems = [...items];
 
@@ -274,7 +272,7 @@ const Day = (props) => {
     setItemsInit({...items});
     setTotal(items.map(val => val.price * 100).reduce((a, b) => {return a + b} , 0) / 100)
 
-  }, [props.match.params])
+  }, [props.match.params, data])
 
 
   var showItems;
@@ -283,7 +281,7 @@ const Day = (props) => {
     showItems = null
   }
   else{
-    showItems = <Paper style={{maxHeight: '60vh', overflow: 'auto'}}>
+    showItems = <Paper style={{maxHeight: '47vh', overflow: 'auto'}}>
                       <List style={{padding: '5px 8px'}}>
                         {items.map((val, index) => 
                           <div key={index}>

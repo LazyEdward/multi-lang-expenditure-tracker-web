@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import {AuthContext} from '../context/AuthContext.js'
 import {StyleContext} from '../context/StyleContext.js'
 import {DateContext} from '../context/DateContext.js'
@@ -13,7 +13,8 @@ import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import SaveIcon from "@material-ui/icons/Save";
-import PdfIcon from '@material-ui/icons/PictureAsPdf';
+import DownlaodIcon from '@material-ui/icons/GetApp';
+import UploadIcon from '@material-ui/icons/Publish';
 import MenuIcon from "@material-ui/icons/Menu";
 import LeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import RightIcon from "@material-ui/icons/KeyboardArrowRight";
@@ -66,6 +67,7 @@ const useStyles = makeStyles((theme) => ({
 
 const CalenAppBar = (props) => {
 
+  const fileUploadRef = useRef();
   const history = useHistory();
 
   const {loggedin, setLoggedIn, setUserId, setLoginToken} = useContext(AuthContext);
@@ -79,6 +81,7 @@ const CalenAppBar = (props) => {
   const { t, i18n } = useTranslation();
 
   const [openWarning, setOpenWarning] = useState(false);
+  const [openWarnOverWrite, setOpenWarnOverWrite] = useState(false);
 
   const [openMenu, setOpenMenu] = useState(false);
 
@@ -224,145 +227,53 @@ const CalenAppBar = (props) => {
     action()
   }
 
-  // const exportResult = () => {
+  const exportResult = () => {
 
-  //   if(edited){
-  //     setOpenWarning(true);
-  //     return;
-  //   }
+    if(edited){
+      setOpenWarning(true);
+      return;
+    }    
 
-  //   var filename =
-  //     (day > 0 ? day.toString().padStart(2, "0") + "-" : "")
-  //       + (month > 0 ? month.toString().padStart(2, "0") + "-" : "")
-  //       + year + '_report';
+    console.log(data)
 
-  //   var title = '';
-  //   var subTitles = [];
-  //   var headers = [];
-  //   var details = [];
+    var fileName = t('appBar.record')
+      + ' ' + (new Date().getFullYear())
+      + '/' + (new Date().getMonth() + 1).toString().padStart(2, "0")
+      + '/' + (new Date().getDate()).toString().padStart(2, "0")
+      + '.json'
 
-  //   if(day > 0 && month > 0){
-  //     title = 'daily report';
 
-  //     let total = 0;
-  //     headers.push(['Item', 'Price'])
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    // Create a new anchor element
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName || 'download';
+    a.click();
+    a.remove();
 
-  //     console.log(data);
+  }
 
-  //     if(data !== null){
-  //       if(data[year] !== undefined){
-  //         if(data[year][month.toString().padStart(2, "0")] !== undefined){
-  //           if(data[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")] !== undefined){
-  //             total = data[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")].total;
-  //             var details_0 = []              
+  const overWriteData = (e) => {
+    if(!e.target.files)
+      return;
 
-  //             for(var i = 0; i < data[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")].items.length; i++){
-  //               details_0.push([data[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")].items[i].name, data[year][month.toString().padStart(2, "0")][day.toString().padStart(2, "0")].items[i].price])
-  //             }
-  
-  //             details.push(details_0);
-
-  //           }
-  //         }
-  //       }
-  //     }
-
-  //     subTitles.push((day > 0 ? day.toString().padStart(2, "0") + "/" : "")
-  //       + (month > 0 ? month.toString().padStart(2, "0") + "/" : "")
-  //       + year + ' total: ' + total);
-
-      
-  //   }
-  //   else if(month > 0){
-  //     title = 'monthly report';
-
-  //     let total = 0;
-  //     headers.push(['Day', 'Price'])
-
-  //     console.log(data);
-
-  //     if(data !== null){
-  //       if(data[year] !== undefined){
-  //         if(data[year][month.toString().padStart(2, "0")] !== undefined){
-  //           var details_0 = []              
-
-  //           for(var i = 1; i < DateUtils.daysInMonth(month,year) + 1; i++){
-
-  //             if(data[year][month.toString().padStart(2, "0")][i.toString().padStart(2, "0")] === undefined){
-  //               details_0.push([DateUtils.getWeekDay(i, month, year) === 0 ? (i + ', ' + DateUtils.weekdays[DateUtils.getWeekDay(i, month, year)]): i, 0])
-  //             }
-  //             else{
-  //               details_0.push([DateUtils.getWeekDay(i, month, year) === 0 ? (i + ', ' +  DateUtils.weekdays[DateUtils.getWeekDay(i, month, year)]): i, data[year][month.toString().padStart(2, "0")][i.toString().padStart(2, "0")].total])
-  //               total += parseFloat(data[year][month.toString().padStart(2, "0")][i.toString().padStart(2, "0")].total) * 100;
-  //             }
-  //           }
-
-  //           // for(var d of Object.keys(data[year][month.toString().padStart(2, "0")])){
-  //           //   details_0.push([d, data[year][month.toString().padStart(2, "0")][d].total])
-  //           //   total += data[year][month.toString().padStart(2, "0")][d].total;
-  //           // }
-  //           total /= 100;
-  //           details.push(details_0);
-
-  //         }
-  //       }
-  //     }
-
-  //     subTitles.push((month > 0 ? month.toString().padStart(2, "0") + "/" : "")
-  //       + year + ' total: ' + total);
-  //   }
-  //   else{
-  //     title = 'annual report';
-
-  //     let total = 0;
-  //     headers.push(['Month', 'Price'])
-
-  //     console.log(data);
-
-  //     if(data !== null){
-  //       if(data[year] !== undefined){
-
-  //         var details_0 = []              
-
-  //         for(var i = 1; i < 13; i++){
-  //           if(data[year][i.toString().padStart(2, "0")] === undefined){
-  //             details_0.push([DateUtils.months[i - 1], 0])
-  //           }
-  //           else{
-  //             let subtotal = 0;
-
-  //             for(var j = 1; j < DateUtils.daysInMonth(i,year) + 1; j++){
-  //               if(data[year][i.toString().padStart(2, "0")][j.toString().padStart(2, "0")] === undefined)
-  //                 continue;
-
-  //               subtotal += parseFloat(data[year][i.toString().padStart(2, "0")][j.toString().padStart(2, "0")].total) * 100;
-  //             }
-
-  //             subtotal /= 100;
-  //             total += parseFloat(subtotal) * 100;
-
-  //             details_0.push([DateUtils.months[i - 1], subtotal])
-  //           }
-  //         }
-
-  //         // for(var d of Object.keys(data[year][month.toString().padStart(2, "0")])){
-  //         //   details_0.push([d, data[year][month.toString().padStart(2, "0")][d].total])
-  //         //   total += data[year][month.toString().padStart(2, "0")][d].total;
-  //         // }
-  //         total /= 100;
-  //         details.push(details_0);
-  //       }
-  //     }
-
-  //     subTitles.push(year + ' total: ' + total);
-  //   }
-
-  //   PDFGenerator(filename, title, subTitles, headers, details);
-
-  // }
+    const fileReader = new FileReader();
+    fileReader.readAsText(e.target.files[0], "UTF-8");
+    fileReader.onload = e => {
+      let d = JSON.parse(e.target.result);
+      setData(d)
+    };    
+    
+    e.target.value = null
+  }
 
   const closeWarning = () => {
     setOpenWarning(false)
+  }
+
+  const closeWarnOverWrite = () => {
+    setOpenWarnOverWrite(false)
   }
 
   useEffect(() => {
@@ -378,21 +289,28 @@ const CalenAppBar = (props) => {
                             </DialogTitle>
                             <DialogContent>
                               <Grid container spacing={0} justify="center" alignItems="center">
-                                {/* <Grid item container spacing={0} justify="center" alignItems="center" xs={12} sm={3} style={{padding: '5px 30px'}}>
-                                  <Button fullWidth style={{textTransform: 'none'}} color="primary" variant="contained">Yes</Button>
-                                </Grid>
                                 <Grid item container spacing={0} justify="center" alignItems="center" xs={12} sm={3} style={{padding: '5px 30px'}}>
-                                  <Button fullWidth style={{textTransform: 'none'}} variant="outlined">No</Button>
-                                </Grid>
-                                <Grid item container spacing={0} justify="center" alignItems="center" xs={12} sm={3} style={{padding: '5px 30px'}}>
-                                  <Button fullWidth style={{textTransform: 'none'}} variant="outlined" onClick={closeWarning}>Cancel</Button>
-                                </Grid> */}
-                                <Grid item container spacing={0} justify="center" alignItems="center" xs={12} sm={3} style={{padding: '5px 30px'}}>
-                                  <Button fullWidth style={{textTransform: 'none'}} variant="outlined" onClick={closeWarning}>Ok</Button>
+                                  <Button color='primary' fullWidth style={{textTransform: 'none'}} variant="outlined" onClick={closeWarning}>Ok</Button>
                                 </Grid>
                               </Grid>
                             </DialogContent>
                           </Dialog>
+
+  var warnOverWriteDialog = <Dialog open={openWarnOverWrite} onClose={closeWarnOverWrite}>
+                              <DialogTitle>
+                                {t('appBar.overwrite')}
+                              </DialogTitle>
+                              <DialogContent>
+                                <Grid container spacing={0} justify="center" alignItems="center">
+                                  <Grid item container spacing={0} justify="center" alignItems="center" xs={12} sm={3} style={{padding: '5px 30px'}}>
+                                    <Button color='primary' fullWidth style={{textTransform: 'none'}} variant="contained" onClick={(e) => {fileUploadRef.current.click();closeWarnOverWrite()}}>Yes</Button>
+                                  </Grid>
+                                  <Grid item container spacing={0} justify="center" alignItems="center" xs={12} sm={3} style={{padding: '5px 30px'}}>
+                                    <Button color='primary' fullWidth style={{textTransform: 'none'}} variant="outlined" onClick={closeWarnOverWrite}>Cancel</Button>
+                                  </Grid>
+                                </Grid>
+                              </DialogContent>
+                            </Dialog>
 
   var showDateBar;
 
@@ -401,6 +319,7 @@ const CalenAppBar = (props) => {
   if(loggedin){
     showBar = <ThemeProvider theme={muiTheme}>
                 {warnOnChangeDialog}
+                {warnOverWriteDialog}
                 <div className={classes.root}>
                   <AppBar className={classes.frontdrop} position="relative" color='primary'>
                   {/* <AppBar className={classes.frontdrop} position="relative" style={{backgroundColor: `${appBarTitleColor[pickedStyle]}`}}> */}
@@ -434,15 +353,29 @@ const CalenAppBar = (props) => {
                           <RightIcon />
                         </IconButton>
                       </Grid>
-                      {/* <IconButton
+                      <IconButton
                         edge="end"
                         color="inherit"
                         aria-label="menu"
                         onClick={(e) => exportResult()}
-                        disabled={currentMenuElement === 3}
                       >
-                        <PdfIcon />
-                      </IconButton> */}
+                        <DownlaodIcon />
+                      </IconButton>
+                      <IconButton
+                        edge="end"
+                        color="inherit"
+                        aria-label="menu"
+                        onClick={(e) => setOpenWarnOverWrite(true)}
+                      >
+                        <input
+                          ref={fileUploadRef}
+                          type="file"
+                          accept="application/json"
+                          onChange={(e) => overWriteData(e)}                          
+                          style={{display: 'none'}}
+                        />                        
+                        <UploadIcon />
+                      </IconButton>
                     </Toolbar>
                   </AppBar>
                   <Collapse in={openMenu} timeout="auto" unmountOnExit>

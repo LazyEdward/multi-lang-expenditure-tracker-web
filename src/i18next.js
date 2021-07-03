@@ -45,7 +45,9 @@ const resources = {
         'Year' : 'Year',
         'Setting' : 'Setting',
         'Logout' : 'Logout',
-        'change' : 'Changes have been detected. Please save changes first.'
+        'change' : 'Changes have been detected. Please save changes first.',
+        'overwrite' : 'Are you sure to overwrite all Expenditure records?',
+        'record' : 'Record'
       }
     }
   },
@@ -90,7 +92,9 @@ const resources = {
         'Year' : '年份模式',
         'Setting' : '設定',
         'Logout' : '登出',
-        'change' : '已檢測到更改，請先保存更改。'
+        'change' : '已檢測到更改，請先保存更改。',
+        'overwrite' : '您確定要覆蓋所有支出記錄嗎？',
+        'record' : '記錄'
       }
     }
   },

@@ -23,7 +23,7 @@ import { useTranslation } from 'react-i18next';
 
 // https://stackoverflow.com/questions/63150232/react-js-material-ui-how-to-format-textfield-as-an-amount
 
-import link from '../utils/restful'
+// import link from '../utils/restful'
 import { Divider, Grid, TextField, Button, List, ListItem, Paper } from '@material-ui/core';
 
 const Setting = (props) => {
@@ -90,7 +90,7 @@ const Setting = (props) => {
 			<div>
 				<Grid container spacing={0} item justify="center" alignItems="center">
 					<Grid item xs={12}>          
-					<Paper elevation={0} style={darkMode ? {maxHeight: '65vh', overflow: 'auto', backgroundColor: '#303030'} : {maxHeight: '65vh', overflow: 'auto'}}>
+					<Paper elevation={0} style={darkMode ? {maxHeight: '60vh', overflow: 'auto', backgroundColor: '#303030'} : {maxHeight: '60vh', overflow: 'auto'}}>
 							<List>
 								<ListItem onClick={changeDarkMode}>
 									<Grid container spacing={0} justify="flex-start" alignItems="center">

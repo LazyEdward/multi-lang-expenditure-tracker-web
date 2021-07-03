@@ -40,6 +40,7 @@ const DayListItem = ({index, val, items, darkMode, appBarTitleColor, pickedStyle
 					label={t('daily.price')}
 					inputProps={{ style: {textAlign: 'end'} }}
 					value={val.price}
+					onFocus={(e) => e.target.select()}
 					onChange={(e) => {repriceItem(index, e.target.value)}}
 					onKeyPress={(e) => {
 						if(index === items.length - 1)
